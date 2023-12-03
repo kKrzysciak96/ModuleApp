@@ -66,6 +66,7 @@ dependencies {
     implementation(Compose.navigation)
     implementation(Compose.viewModelCompose)
     implementation(Compose.activityCompose)
+    implementation(Compose.materialIconsExtended)
 
     implementation(DaggerHilt.hiltAndroid)
     kapt(DaggerHilt.hiltCompiler)
@@ -83,8 +84,8 @@ dependencies {
 //    implementation(Retrofit.okHttpLoggingInterceptor)
 //    implementation(Retrofit.moshiConverter)
 
-//    kapt(Room.roomCompiler)
-//    implementation(Room.roomKtx)
-//    implementation(Room.roomRuntime)
+    kapt(Room.roomCompiler)
+    implementation(Room.roomKtx)
+    implementation(Room.roomRuntime)
     implementation(WorkManager.workManager)
 }
