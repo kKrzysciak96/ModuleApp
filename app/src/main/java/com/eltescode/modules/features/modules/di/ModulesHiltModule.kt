@@ -12,6 +12,7 @@ import com.eltescode.modules.features.modules.domain.use_cases.AddModulesUseCase
 import com.eltescode.modules.features.modules.domain.use_cases.DeleteModuleUseCase
 import com.eltescode.modules.features.modules.domain.use_cases.DropDataBase
 import com.eltescode.modules.features.modules.domain.use_cases.FilterModulesUseCase
+import com.eltescode.modules.features.modules.domain.use_cases.GetModuleUseCase
 import com.eltescode.modules.features.modules.domain.use_cases.GetModulesUseCase
 import com.eltescode.modules.features.modules.domain.use_cases.ModuleUseCases
 import com.eltescode.modules.features.modules.presentation.main_screen.MainScreenViewModel
@@ -56,7 +57,8 @@ object ModulesHiltModule {
             getModulesUseCase = GetModulesUseCase(repository),
             dropDataBase = DropDataBase(repository),
             filterModulesUseCase = FilterModulesUseCase(),
-            addModulesUseCase = AddModulesUseCase(repository)
+            addModulesUseCase = AddModulesUseCase(repository),
+            getModuleUseCase = GetModuleUseCase(repository),
         )
     }
 

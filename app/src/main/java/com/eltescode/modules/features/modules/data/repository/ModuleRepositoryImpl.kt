@@ -4,6 +4,7 @@ import com.eltescode.modules.features.modules.data.local.ModuleDao
 import com.eltescode.modules.features.modules.domain.model.Module
 import com.eltescode.modules.features.modules.domain.repository.ModuleRepository
 import kotlinx.coroutines.flow.Flow
+import java.util.UUID
 
 class ModuleRepositoryImpl(private val dao: ModuleDao) : ModuleRepository {
     override suspend fun editModule(module: Module) {
@@ -22,8 +23,12 @@ class ModuleRepositoryImpl(private val dao: ModuleDao) : ModuleRepository {
         dao.deleteModule(module)
     }
 
-    override fun geModules(): Flow<List<Module>> {
+    override fun getModules(): Flow<List<Module>> {
         return dao.geModules()
+    }
+
+    override suspend fun getModule(id: UUID): Module {
+        return dao.geModule(id)
     }
 
     override suspend fun dropDatabase() {

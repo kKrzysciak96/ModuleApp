@@ -1,11 +1,15 @@
 package com.eltescode.modules.features.modules.presentation.utils
 
 import com.eltescode.modules.features.modules.presentation.model.ModuleDisplayable
-import java.time.LocalDate
+import com.maxkeppeker.sheets.core.models.base.UseCaseState
 
-data class MainScreenState(
+data class MainScreenState constructor(
     val modules: List<ModuleDisplayable> = emptyList(),
-    val date: LocalDate,
     val newModuleToInsert: ModuleDisplayable? = null,
     val isAddModuleDialogVisible: Boolean = false,
+    val calendarState: UseCaseState = UseCaseState(),
+    val currentPage: Int,
+    val isSearchActive: Boolean = false,
+    val searchedText: String = ""
+
 )

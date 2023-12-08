@@ -6,6 +6,7 @@ import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eltescode.modules.R
+import com.eltescode.modules.core.navigation.Routes
 import com.eltescode.modules.core.preferences.Preferences
 import com.eltescode.modules.core.utils.UiEvent
 import com.eltescode.modules.core.utils.UiText
@@ -30,13 +31,12 @@ class MainScreenViewModel @Inject constructor(
     private val useCases: ModuleUseCases, private val preferences: Preferences
 ) : ViewModel() {
 
-    private var epochDay = preferences.loadLastCardDate()
+    var lastPage = preferences.loadLastCard()
 
-    private val _state = mutableStateOf(MainScreenState(date = LocalDate.ofEpochDay(epochDay)))
+    private val _state = mutableStateOf(MainScreenState(currentPage = lastPage))
     val state: State<MainScreenState> = _state
 
     private var job: Job? = null
-
 
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
@@ -48,16 +48,6 @@ class MainScreenViewModel @Inject constructor(
     fun onEvent(event: MainScreenEvents) {
 
         when (event) {
-
-            MainScreenEvents.OnNextClick -> {
-                nextCard()
-                getModules()
-            }
-
-            MainScreenEvents.OnPreviousClick -> {
-                previousCard()
-                getModules()
-            }
 
             is MainScreenEvents.OnAddButtonClick -> {
                 _state.value = state.value.copy(newModuleToInsert = event.module)
@@ -71,7 +61,6 @@ class MainScreenViewModel @Inject constructor(
 
             is MainScreenEvents.OnSaveButtonClick -> {
                 val module = event.module
-
                 try {
                     if (module.name.isBlank()) {
                         throw CustomException(uiTextMessage = UiText.StringResource(R.string.name_error))
@@ -145,31 +134,77 @@ class MainScreenViewModel @Inject constructor(
                 })
             }
 
-            MainScreenEvents.OnAddNewIncrementMenuDismiss -> {
-                _state.value = state.value.copy(modules = state.value.modules.map {
-                    it.copy(isAddNewIncrementDropdownMenuVisible = false)
-                })
-            }
-
-            is MainScreenEvents.ActionEditComment -> {
-
+            MainScreenEvents.OnDropDownMenuDismiss -> {
+                _state.value = state.value.copy(
+                    modules = state.value.modules.map {
+                        it.copy(
+                            isAddNewIncrementDropdownMenuVisible = false,
+                            isEditIncrementDropdownMenuVisible = false
+                        )
+                    }
+                )
             }
 
             is MainScreenEvents.ActionEditIncrementation -> {
-
-            }
-
-            is MainScreenEvents.OnActionEditName -> {
-
+                _state.value = state.value.copy(modules = state.value.modules.map {
+                    it.copy(isModuleDropdownMenuVisible = false)
+                })
+                _state.value = state.value.copy(
+                    modules = state.value.modules.map {
+                        if (it.id == event.module.id) {
+                            it.copy(isEditIncrementDropdownMenuVisible = true)
+                        } else {
+                            it
+                        }
+                    }
+                )
             }
 
             is MainScreenEvents.OnModuleClick -> {
-
+                job = null
+                job = viewModelScope.launch {
+                    val route = Routes.MODULE_SCREEN + "/${event.id}"
+                    _uiEvent.send(UiEvent.OnNextScreen(route))
+                }
             }
 
             is MainScreenEvents.OnAddNewIncrementation -> {
                 job = null
                 job = viewModelScope.launch {
+                    if (event.module.newIncrementation != null) {
+                        state.value.newModuleToInsert?.let { newModuleToInsert ->
+                            val skippedModuleToUpdate =
+                                event.module.copy(isSkipped = true, newIncrementation = null)
+                                    .toModule()
+                            val skippedModuleToInsert = newModuleToInsert.copy(
+                                id = UUID.randomUUID(),
+                                newIncrementation = event.module.newIncrementation
+                            ).toModule()
+
+                            val newIncrementation =
+                                skippedModuleToInsert.incrementation + skippedModuleToInsert.newIncrementation!!
+
+                            val newEpochDay = LocalDate.ofEpochDay(skippedModuleToInsert.epochDay)
+                                .plusDays(newIncrementation.toLong()).toEpochDay()
+
+                            val moduleToAdd = skippedModuleToInsert.copy(
+                                newIncrementation = null,
+                                incrementation = newIncrementation,
+                                epochDay = newEpochDay,
+                                id = UUID.randomUUID()
+                            )
+                            useCases.addModulesUseCase(
+                                listOf(
+                                    skippedModuleToUpdate,
+                                    skippedModuleToInsert,
+                                    moduleToAdd
+                                )
+                            )
+                            _state.value = state.value.copy(newModuleToInsert = null)
+                            return@launch
+                        }
+                    }
+
                     val moduleToUpdate = event.module.toModule()
                     if (moduleToUpdate.newIncrementation != null) {
                         val newIncrementation =
@@ -188,16 +223,62 @@ class MainScreenViewModel @Inject constructor(
                     }
                 }
             }
+
+            is MainScreenEvents.OnEditIncrementation -> {
+                job = null
+                job = viewModelScope.launch {
+                    val moduleToUpdate = event.module.toModule()
+                    useCases.addModuleUseCase(moduleToUpdate)
+                }
+            }
+
+
+            is MainScreenEvents.OnPickDate -> {
+
+                _state.value = state.value.copy(
+                    newModuleToInsert = state.value.newModuleToInsert?.copy(epochDay = event.date.toEpochDay())
+                )
+
+                _state.value = state.value.copy(modules = state.value.modules.map {
+                    if (it.id == state.value.newModuleToInsert?.id) {
+                        it.copy(isAddNewIncrementDropdownMenuVisible = true)
+                    } else {
+                        it
+                    }
+                })
+            }
+
+            is MainScreenEvents.OnPickModuleAddNewIncrementationFromDate -> {
+                _state.value = state.value.copy(newModuleToInsert = event.module)
+            }
+
+            is MainScreenEvents.ToggleSkipped -> {
+                job = null
+                job = viewModelScope.launch {
+                    useCases.addModuleUseCase(
+                        event.module.copy(isSkipped = !event.module.isSkipped).toModule()
+                    )
+                }
+            }
+
+            MainScreenEvents.OnCloseSearchIconClick -> {
+                _state.value = state.value.copy(isSearchActive = false)
+            }
+
+            MainScreenEvents.OnSearchTextClick -> {
+                _state.value = state.value.copy(isSearchActive = true)
+            }
+
+            is MainScreenEvents.OnSearchedTextEntered -> {
+                _state.value = state.value.copy(searchedText = event.text)
+            }
         }
     }
 
     private fun getModules() {
-        job = null
-        job = viewModelScope.launch {
+        viewModelScope.launch {
             useCases.getModulesUseCase().collectLatest { list ->
-                _state.value = state.value.copy(modules = useCases.filterModulesUseCase(
-                    modules = list, date = state.value.date
-                ).map { ModuleDisplayable(it) })
+                _state.value = state.value.copy(modules = list.map { ModuleDisplayable(it) })
             }
         }
     }
@@ -223,21 +304,10 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-    private fun previousCard() {
-        _state.value = state.value.copy(
-            date = state.value.date.minusDays(13L), modules = emptyList()
-        )
-        updateLastCard()
+    fun updateLastCard(page: Int) {
+        preferences.saveLastCard(page)
+        _state.value = state.value.copy(currentPage = page)
     }
 
-    private fun nextCard() {
-        _state.value =
-            state.value.copy(date = state.value.date.plusDays(13L), modules = emptyList())
-        updateLastCard()
-    }
-
-    private fun updateLastCard() {
-        preferences.saveLastCardDate(state.value.date.toEpochDay())
-    }
 
 }

@@ -2,6 +2,7 @@ package com.eltescode.modules.features.modules.domain.repository
 
 import com.eltescode.modules.features.modules.domain.model.Module
 import kotlinx.coroutines.flow.Flow
+import java.util.UUID
 
 
 interface ModuleRepository {
@@ -13,7 +14,8 @@ interface ModuleRepository {
 
     suspend fun deleteModule(module: Module)
 
-    fun geModules(): Flow<List<Module>>
+    fun getModules(): Flow<List<Module>>
+    suspend fun getModule(id: UUID): Module
 
     suspend fun dropDatabase()
 }

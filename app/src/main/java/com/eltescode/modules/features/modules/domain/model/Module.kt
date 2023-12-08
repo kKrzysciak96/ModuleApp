@@ -12,6 +12,8 @@ data class Module(
     val incrementation: Int,
     val newIncrementation: Int? = null,
     val epochDay: Long,
+    val isSkipped: Boolean,
     @PrimaryKey
     val id: UUID,
 )
+

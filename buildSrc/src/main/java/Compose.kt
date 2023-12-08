@@ -27,4 +27,8 @@ object Compose {
     const val viewModelCompose = "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion"
 
     const val composeLiveData = "androidx.compose.runtime:runtime-livedata:$composeVersion"
+
+    private const val composeDialogsVersion = "1.2.0"
+    const val composeDialogsCore = "com.maxkeppeler.sheets-compose-dialogs:core:$composeDialogsVersion"
+    const val composeCalendarDialog= "com.maxkeppeler.sheets-compose-dialogs:calendar:$composeDialogsVersion"
 }

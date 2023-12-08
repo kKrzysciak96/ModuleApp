@@ -14,7 +14,11 @@
     <string name="edit_comment_action">EditComment</string>
     <string name="edit_increment_action">Edit Increment</string>
     <string name="add_new_increment_action">Add Increment</string>
+    <string name="add_new_increment_from_date_action">Add From Date</string>
+    <string name="toggle_skipped">Toggle Skipped</string>
     <string name="reset">Reset</string>
     <string name="name_error">Name can not be empty</string>
     <string name="number_error">Invalid number</string>
+    <string name="module_saved">Module has been Saved</string>
+    <string name="search">Search</string>
 </resources>

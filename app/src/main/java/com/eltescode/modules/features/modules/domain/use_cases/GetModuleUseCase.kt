@@ -2,12 +2,11 @@ package com.eltescode.modules.features.modules.domain.use_cases
 
 import com.eltescode.modules.features.modules.domain.model.Module
 import com.eltescode.modules.features.modules.domain.repository.ModuleRepository
-import kotlinx.coroutines.flow.Flow
+import java.util.UUID
 
+class GetModuleUseCase(private val repository: ModuleRepository) {
 
-class GetModulesUseCase(private val repository: ModuleRepository) {
-
-    operator fun invoke(): Flow<List<Module>> {
-        return repository.getModules()
+    suspend operator fun invoke(id: UUID): Module {
+        return repository.getModule(id)
     }
 }

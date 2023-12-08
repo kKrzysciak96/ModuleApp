@@ -8,13 +8,16 @@ import androidx.compose.ui.platform.LocalContext
 import com.eltescode.modules.features.modules.presentation.model.ModuleDisplayable
 import com.eltescode.modules.features.modules.presentation.utils.MainScreenEvents
 import com.eltescode.modules.features.modules.presentation.utils.ModuleActions
+import com.maxkeppeker.sheets.core.models.base.UseCaseState
 
 
 @Composable
 fun ModuleActionsMenu(
     module: ModuleDisplayable,
     onDismissRequest: () -> Unit,
-    onEvent: (MainScreenEvents) -> Unit
+    onEvent: (MainScreenEvents) -> Unit,
+    calendarState: UseCaseState,
+    onFromDateClick: (ModuleDisplayable) -> Unit
 ) {
     val context = LocalContext.current
     DropdownMenu(
@@ -28,20 +31,22 @@ fun ModuleActionsMenu(
                             onEvent(MainScreenEvents.OnDeleteModuleClick(module))
                         }
 
-                        ModuleActions.ActionEditName -> {
-                            onEvent(MainScreenEvents.OnActionEditName(module))
-                        }
-
-                        ModuleActions.ActionEditComment -> {
-                            onEvent(MainScreenEvents.ActionEditComment(module))
-                        }
-
                         ModuleActions.ActionEditIncrementation -> {
                             onEvent(MainScreenEvents.ActionEditIncrementation(module))
                         }
 
                         ModuleActions.ActionAddNewIncrementation -> {
                             onEvent(MainScreenEvents.ActionAddNewIncrementation(module))
+                        }
+
+                        ModuleActions.ActionAddNewIncrementationFromDate -> {
+                            onEvent(MainScreenEvents.OnModuleActionsMenuDismiss)
+                            onEvent(MainScreenEvents.OnPickModuleAddNewIncrementationFromDate(module))
+                            calendarState.show()
+                        }
+
+                        ModuleActions.ActionToggleSkipped -> {
+                            onEvent(MainScreenEvents.ToggleSkipped(module))
                         }
                     }
                 },

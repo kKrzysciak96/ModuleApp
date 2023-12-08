@@ -2,11 +2,11 @@ package com.eltescode.modules.core.preferences
 
 interface Preferences {
 
-    fun saveLastCardDate(date: Long)
-    fun loadLastCardDate(): Long
+    fun saveLastCard(page: Int)
+    fun loadLastCard(): Int
 
     companion object {
-        const val KEY_LAST_CARD_DATE = "KEY_LAST_CARD_DATE"
+        const val KEY_LAST_CARD = "KEY_LAST_CARD"
     }
 
 }
