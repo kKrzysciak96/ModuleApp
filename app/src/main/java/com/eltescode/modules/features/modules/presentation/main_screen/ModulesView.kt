@@ -31,7 +31,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.eltescode.modules.R
 import com.eltescode.modules.core.extensions.calculateDateUponGivenHorizontalPagerPage
 import com.eltescode.modules.core.ui.theme.Purple40
 import com.eltescode.modules.core.utils.UiEvent
@@ -39,6 +41,7 @@ import com.eltescode.modules.features.modules.presentation.components.AddModuleD
 import com.eltescode.modules.features.modules.presentation.components.CardSelector
 import com.eltescode.modules.features.modules.presentation.components.CustomBottomAppBar
 import com.eltescode.modules.features.modules.presentation.components.DayRow
+import com.eltescode.modules.features.modules.presentation.components.SupaBaseDialog
 import com.eltescode.modules.features.modules.presentation.utils.MainScreenEvents
 import com.eltescode.modules.features.modules.presentation.utils.MainScreenState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
@@ -191,6 +194,7 @@ fun ModulesView(
                             onActionToggleSkippedClick = { module ->
                                 onEvent(MainScreenEvents.ToggleSkipped(module))
                             }
+
                         )
                     }
                 }
@@ -258,6 +262,25 @@ fun ModulesView(
                 }) {
                 Icon(imageVector = Icons.Default.GetApp, contentDescription = null)
             }
+        }
+
+        if (state.isPushDataDialogVisible) {
+            SupaBaseDialog(
+                confirm = { onEvent(MainScreenEvents.OnConfirmPushClick) },
+                onDismiss = { onEvent(MainScreenEvents.OnPushDialogDismiss) },
+                question = stringResource(id = R.string.push_question),
+                confirmText = stringResource(id = R.string.confirm_text),
+                denyText = stringResource(id = R.string.deny_text),
+            )
+        }
+        if (state.isFetchDataDialogVisible) {
+            SupaBaseDialog(
+                confirm = { onEvent(MainScreenEvents.OnConfirmFetchClick) },
+                onDismiss = { onEvent(MainScreenEvents.OnFetchDialogDismiss) },
+                question = stringResource(id = R.string.fetch_question),
+                confirmText = stringResource(id = R.string.confirm_text),
+                denyText = stringResource(id = R.string.deny_text),
+            )
         }
     }
 }

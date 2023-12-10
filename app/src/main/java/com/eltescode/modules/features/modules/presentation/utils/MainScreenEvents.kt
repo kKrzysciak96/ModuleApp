@@ -33,9 +33,15 @@ sealed interface MainScreenEvents {
     object OnSearchViewClose : MainScreenEvents
     data class OnSearchOptionChange(val searchOption: SearchOptions) : MainScreenEvents
     object OnSearchOptionSectionToggle : MainScreenEvents
-    object OnPushButtonClick : MainScreenEvents
-    object OnFetchButtonClick : MainScreenEvents
+    object OnConfirmPushClick : MainScreenEvents
+    object OnConfirmFetchClick : MainScreenEvents
     data class OnNewCardVisible(val cardNumber: Int) : MainScreenEvents
     object OnShowAllModulesPreviewIconClick : MainScreenEvents
+    object OnPushButtonClick : MainScreenEvents
+    object OnFetchButtonClick : MainScreenEvents
+
+    object OnPushDialogDismiss : MainScreenEvents
+    object OnFetchDialogDismiss : MainScreenEvents
+
 
 }

@@ -13,9 +13,12 @@ data class MainScreenState constructor(
     val searchedText: String = "",
     val searchOptions: SearchOptions,
     val isSearchOptionsSectionVisible: Boolean = false,
-    val isApiRequestLoading: Boolean = false
+    val isApiRequestLoading: Boolean = false,
+    val isFetchDataDialogVisible: Boolean = false,
+    val isPushDataDialogVisible: Boolean = false,
 
-)
+
+    )
 
 
 

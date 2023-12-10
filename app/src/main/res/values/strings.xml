@@ -32,5 +32,9 @@
     <string name="delete_hint">Delete database?</string>
     <string name="delete">Delete</string>
     <string name="back">Back</string>
+    <string name="push_question">Push data to remote server?</string>
+    <string name="fetch_question">Fetch data from remote server?</string>
+    <string name="confirm_text">Yes</string>
+    <string name="deny_text">No</string>
 
 </resources>

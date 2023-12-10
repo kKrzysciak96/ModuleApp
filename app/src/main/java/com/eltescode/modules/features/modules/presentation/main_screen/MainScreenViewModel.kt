@@ -316,7 +316,7 @@ class MainScreenViewModel @Inject constructor(
                     state.value.copy(isSearchOptionsSectionVisible = !state.value.isSearchOptionsSectionVisible)
             }
 
-            MainScreenEvents.OnFetchButtonClick -> {
+            MainScreenEvents.OnConfirmFetchClick -> {
                 job = null
                 job = viewModelScope.launch {
                     useCases.fetchModulesFromRemoteUseCase().collect() { apiResult ->
@@ -347,7 +347,7 @@ class MainScreenViewModel @Inject constructor(
                 }
             }
 
-            MainScreenEvents.OnPushButtonClick -> {
+            MainScreenEvents.OnConfirmPushClick -> {
                 job = null
                 job = viewModelScope.launch {
                     useCases.pushModulesToRemoteUseCase().collect() { apiResult ->
@@ -373,6 +373,7 @@ class MainScreenViewModel @Inject constructor(
                                 _state.value = state.value.copy(isApiRequestLoading = false)
                                 _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.push_success)))
                             }
+
                         }
                     }
                 }
@@ -390,7 +391,21 @@ class MainScreenViewModel @Inject constructor(
                 }
             }
 
+            MainScreenEvents.OnFetchButtonClick -> {
+                _state.value = state.value.copy(isFetchDataDialogVisible = true)
+            }
 
+            MainScreenEvents.OnFetchDialogDismiss -> {
+                _state.value = state.value.copy(isFetchDataDialogVisible = false)
+            }
+
+            MainScreenEvents.OnPushButtonClick -> {
+                _state.value = state.value.copy(isPushDataDialogVisible = true)
+            }
+
+            MainScreenEvents.OnPushDialogDismiss -> {
+                _state.value = state.value.copy(isPushDataDialogVisible = false)
+            }
         }
     }
 
