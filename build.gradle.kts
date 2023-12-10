@@ -1,3 +1,6 @@
+plugins {
+    kotlin("plugin.serialization") version Kotlin.version
+}
 buildscript {
     repositories {
         google()
@@ -8,7 +11,8 @@ buildscript {
         classpath(Build.kotlinGradlePlugin)
         classpath(Build.hiltAndroidGradlePlugin)
 //        classpath("com.google.gms:google-services:4.4.0")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Kotlin.version}")
+        classpath("org.jetbrains.kotlin:kotlin-serialization:${Kotlin.version}")
 
     }
 }

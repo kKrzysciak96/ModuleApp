@@ -80,7 +80,9 @@ fun ModuleScreen(
                     },
                     onIconClick = {
                         viewModel.onEvent(ModuleScreenEvents.OnEditNameToggle)
-                    })
+                    },
+                    singleLine = true
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 TextRow(
                     modifier = Modifier.fillMaxWidth(),

@@ -21,4 +21,16 @@
     <string name="number_error">Invalid number</string>
     <string name="module_saved">Module has been Saved</string>
     <string name="search">Search</string>
+    <string name="exact_search">Exact</string>
+    <string name="contains_search">Contains</string>
+    <string name="descending_search">Descending</string>
+    <string name="ascending_search">Ascending</string>
+    <string name="enter_text_hint">Enter Text</string>
+    <string name="push_success">Data pushed successfully</string>
+    <string name="fetch_success">Data fetched successfully</string>
+    <string name="all_modules_names">All Modules Names</string>
+    <string name="delete_hint">Delete database?</string>
+    <string name="delete">Delete</string>
+    <string name="back">Back</string>
+
 </resources>

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -17,10 +16,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TextRow(
     modifier: Modifier = Modifier,
+    singleLine: Boolean = false,
     label: String,
     text: String,
     isIconEnabled: Boolean,
@@ -55,7 +54,8 @@ fun TextRow(
     if (isIconEnabled) {
         TextField(
             value = text,
-            onValueChange = onValueChange
+            onValueChange = onValueChange,
+            singleLine = singleLine
         )
     } else {
         Text(text = text)

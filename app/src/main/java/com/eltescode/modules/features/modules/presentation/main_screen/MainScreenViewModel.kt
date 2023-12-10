@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.eltescode.modules.R
 import com.eltescode.modules.core.navigation.Routes
 import com.eltescode.modules.core.preferences.Preferences
+import com.eltescode.modules.core.utils.ApiResult
 import com.eltescode.modules.core.utils.UiEvent
 import com.eltescode.modules.core.utils.UiText
 import com.eltescode.modules.features.modules.domain.model.Module
@@ -16,6 +17,9 @@ import com.eltescode.modules.features.modules.presentation.model.ModuleDisplayab
 import com.eltescode.modules.features.modules.presentation.utils.CustomException
 import com.eltescode.modules.features.modules.presentation.utils.MainScreenEvents
 import com.eltescode.modules.features.modules.presentation.utils.MainScreenState
+import com.eltescode.modules.features.modules.presentation.utils.SearchOptions
+import com.eltescode.modules.features.modules.presentation.utils.SearchOrder
+import com.maxkeppeker.sheets.core.models.base.UseCaseState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -28,12 +32,21 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
-    private val useCases: ModuleUseCases, private val preferences: Preferences
+    private val useCases: ModuleUseCases, private val preferences: Preferences,
 ) : ViewModel() {
 
     var lastPage = preferences.loadLastCard()
 
-    private val _state = mutableStateOf(MainScreenState(currentPage = lastPage))
+
+    private val _state = mutableStateOf(
+        MainScreenState(
+            currentPage = lastPage,
+            calendarState = UseCaseState(
+                onDismissRequest = { onEvent(MainScreenEvents.OnCalendarDialogDismiss) },
+            ),
+            searchOptions = SearchOptions.Contains(SearchOrder.Descending)
+        )
+    )
     val state: State<MainScreenState> = _state
 
     private var job: Job? = null
@@ -49,8 +62,20 @@ class MainScreenViewModel @Inject constructor(
 
         when (event) {
 
+            is MainScreenEvents.OnCalendarDialogDismiss -> {
+                _state.value = state.value.copy(newModuleToInsert = null)
+            }
+
             is MainScreenEvents.OnAddButtonClick -> {
-                _state.value = state.value.copy(newModuleToInsert = event.module)
+                val module = ModuleDisplayable(
+                    name = "",
+                    comment = "",
+                    incrementation = "",
+                    epochDay = event.epochDate,
+                    id = UUID.randomUUID(),
+                    timeStamp = System.currentTimeMillis()
+                )
+                _state.value = state.value.copy(newModuleToInsert = module)
                 _state.value = state.value.copy(isAddModuleDialogVisible = true)
             }
 
@@ -134,12 +159,21 @@ class MainScreenViewModel @Inject constructor(
                 })
             }
 
-            MainScreenEvents.OnDropDownMenuDismiss -> {
+            MainScreenEvents.OnAddNewIncrementDropDownMenuDismiss -> {
                 _state.value = state.value.copy(
                     modules = state.value.modules.map {
                         it.copy(
                             isAddNewIncrementDropdownMenuVisible = false,
-                            isEditIncrementDropdownMenuVisible = false
+                        )
+                    }
+                )
+            }
+
+            MainScreenEvents.OnEditIncrementDropDownMenuDismiss -> {
+                _state.value = state.value.copy(
+                    modules = state.value.modules.map {
+                        it.copy(
+                            isEditIncrementDropdownMenuVisible = false,
                         )
                     }
                 )
@@ -160,11 +194,11 @@ class MainScreenViewModel @Inject constructor(
                 )
             }
 
-            is MainScreenEvents.OnModuleClick -> {
+            is MainScreenEvents.OnEditIncrementation -> {
                 job = null
                 job = viewModelScope.launch {
-                    val route = Routes.MODULE_SCREEN + "/${event.id}"
-                    _uiEvent.send(UiEvent.OnNextScreen(route))
+                    val moduleToUpdate = event.module.toModule()
+                    useCases.addModuleUseCase(moduleToUpdate)
                 }
             }
 
@@ -224,15 +258,6 @@ class MainScreenViewModel @Inject constructor(
                 }
             }
 
-            is MainScreenEvents.OnEditIncrementation -> {
-                job = null
-                job = viewModelScope.launch {
-                    val moduleToUpdate = event.module.toModule()
-                    useCases.addModuleUseCase(moduleToUpdate)
-                }
-            }
-
-
             is MainScreenEvents.OnPickDate -> {
 
                 _state.value = state.value.copy(
@@ -248,7 +273,7 @@ class MainScreenViewModel @Inject constructor(
                 })
             }
 
-            is MainScreenEvents.OnPickModuleAddNewIncrementationFromDate -> {
+            is MainScreenEvents.ActionAddNewIncrementationFromDate -> {
                 _state.value = state.value.copy(newModuleToInsert = event.module)
             }
 
@@ -261,17 +286,111 @@ class MainScreenViewModel @Inject constructor(
                 }
             }
 
-            MainScreenEvents.OnCloseSearchIconClick -> {
-                _state.value = state.value.copy(isSearchActive = false)
+            is MainScreenEvents.OnModuleClick -> {
+                job = null
+                job = viewModelScope.launch {
+                    val route = Routes.MODULE_SCREEN + "/${event.id}"
+                    _uiEvent.send(UiEvent.OnNextScreen(route))
+                }
             }
 
             MainScreenEvents.OnSearchTextClick -> {
+
                 _state.value = state.value.copy(isSearchActive = true)
+            }
+
+            MainScreenEvents.OnSearchViewClose -> {
+                _state.value = state.value.copy(isSearchActive = false)
             }
 
             is MainScreenEvents.OnSearchedTextEntered -> {
                 _state.value = state.value.copy(searchedText = event.text)
             }
+
+            is MainScreenEvents.OnSearchOptionChange -> {
+                _state.value = state.value.copy(searchOptions = event.searchOption)
+            }
+
+            is MainScreenEvents.OnSearchOptionSectionToggle -> {
+                _state.value =
+                    state.value.copy(isSearchOptionsSectionVisible = !state.value.isSearchOptionsSectionVisible)
+            }
+
+            MainScreenEvents.OnFetchButtonClick -> {
+                job = null
+                job = viewModelScope.launch {
+                    useCases.fetchModulesFromRemoteUseCase().collect() { apiResult ->
+                        when (apiResult) {
+                            is ApiResult.Error -> {
+                                _state.value = state.value.copy(isApiRequestLoading = false)
+                                apiResult.message?.let {
+                                    _uiEvent.send(
+                                        UiEvent.ShowSnackBar(
+                                            UiText.DynamicString(
+                                                it
+                                            )
+                                        )
+                                    )
+                                }
+                            }
+
+                            ApiResult.Loading -> {
+                                _state.value = state.value.copy(isApiRequestLoading = true)
+                            }
+
+                            is ApiResult.Success -> {
+                                _state.value = state.value.copy(isApiRequestLoading = false)
+                                _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.fetch_success)))
+                            }
+                        }
+                    }
+                }
+            }
+
+            MainScreenEvents.OnPushButtonClick -> {
+                job = null
+                job = viewModelScope.launch {
+                    useCases.pushModulesToRemoteUseCase().collect() { apiResult ->
+                        when (apiResult) {
+                            is ApiResult.Error -> {
+                                _state.value = state.value.copy(isApiRequestLoading = false)
+                                apiResult.message?.let {
+                                    _uiEvent.send(
+                                        UiEvent.ShowSnackBar(
+                                            UiText.DynamicString(
+                                                it
+                                            )
+                                        )
+                                    )
+                                }
+                            }
+
+                            ApiResult.Loading -> {
+                                _state.value = state.value.copy(isApiRequestLoading = true)
+                            }
+
+                            is ApiResult.Success -> {
+                                _state.value = state.value.copy(isApiRequestLoading = false)
+                                _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.push_success)))
+                            }
+                        }
+                    }
+                }
+            }
+
+            is MainScreenEvents.OnNewCardVisible -> {
+                updateLastCard(event.cardNumber)
+            }
+
+            is MainScreenEvents.OnShowAllModulesPreviewIconClick -> {
+                job = null
+                job = viewModelScope.launch {
+                    val route = Routes.ALL_MODULES_PREVIEW_SCREEN
+                    _uiEvent.send(UiEvent.OnNextScreen(route))
+                }
+            }
+
+
         }
     }
 
@@ -286,7 +405,7 @@ class MainScreenViewModel @Inject constructor(
     private fun addModule(module: Module) {
         job = null
         job = viewModelScope.launch {
-            useCases.addModuleUseCase(module)
+            useCases.addModuleUseCase(module.copy(timeStamp = System.currentTimeMillis()))
         }
     }
 
@@ -304,9 +423,9 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-    fun updateLastCard(page: Int) {
-        preferences.saveLastCard(page)
-        _state.value = state.value.copy(currentPage = page)
+    fun updateLastCard(cardNumber: Int) {
+        preferences.saveLastCard(cardNumber)
+        _state.value = state.value.copy(currentPage = cardNumber)
     }
 
 

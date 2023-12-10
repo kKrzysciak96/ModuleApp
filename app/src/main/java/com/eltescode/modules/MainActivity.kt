@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.eltescode.modules.core.navigation.Routes
 import com.eltescode.modules.core.ui.theme.ModulesTheme
+import com.eltescode.modules.features.modules.presentation.all_modules_preview.AllModulesPreviewScreen
 import com.eltescode.modules.features.modules.presentation.main_screen.MainScreen
 import com.eltescode.modules.features.modules.presentation.module_screen.ModuleScreen
 import dagger.hilt.android.AndroidEntryPoint
@@ -48,6 +49,12 @@ class MainActivity : ComponentActivity() {
                                     snackBarHostState = snackBarHostState,
                                     onNextScreen = { navController.navigate(it) }
                                 )
+                            }
+
+                            composable(Routes.ALL_MODULES_PREVIEW_SCREEN) {
+                                AllModulesPreviewScreen(onBack = {
+                                    navController.popBackStack()
+                                })
                             }
 
                             composable(

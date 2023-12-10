@@ -33,8 +33,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eltescode.modules.features.modules.presentation.model.ModuleDisplayable
-import com.eltescode.modules.features.modules.presentation.utils.MainScreenEvents
-import com.maxkeppeker.sheets.core.models.base.UseCaseState
 import java.time.LocalDate
 import java.util.UUID
 
@@ -46,48 +44,81 @@ fun DayRow(
     modules: List<ModuleDisplayable>,
     onAddButtonClick: (LocalDate) -> Unit,
     onDropdownMenuDismiss: () -> Unit,
-    onIncrementationDropdownMenuDismiss: () -> Unit,
+    onAddNewIncrementationDropdownMenuDismiss: () -> Unit,
+    onEditIncrementationDropdownMenuDismiss: () -> Unit,
     onLongPress: (UUID) -> Unit,
-    onEvent: (MainScreenEvents) -> Unit,
-    calendarState: UseCaseState,
-    onFromDateClick: (ModuleDisplayable) -> Unit
+    onEditIncrementation: (ModuleDisplayable) -> Unit,
+    onAddNewIncrementation: (ModuleDisplayable) -> Unit,
+    onResetNewIncrementation: (ModuleDisplayable) -> Unit,
+    onModuleClick: (UUID) -> Unit,
+    onActionDeleteClick: (ModuleDisplayable) -> Unit,
+    onActionEditIncrementationClick: (ModuleDisplayable) -> Unit,
+    onActionAddNewIncrementationClick: (ModuleDisplayable) -> Unit,
+    onActionAddNewIncrementationFromDateClick: (ModuleDisplayable) -> Unit,
+    onActionToggleSkippedClick: (ModuleDisplayable) -> Unit,
 ) {
-    Row(
+
+    Column(
         modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Row(
-            modifier = Modifier.width(100.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = "${date.dayOfMonth}.${date.monthValue}.${date.year.toString().takeLast(2)}")
-        }
-        FlowRow(
-            modifier = Modifier
-                .weight(1F),
-        ) {
-            modules.forEach {
-                ModuleItem(
-                    module = it,
-                    modifier = Modifier
-                        .height(IntrinsicSize.Max)
-                        .width(IntrinsicSize.Max)
-                        .padding(vertical = 2.dp, horizontal = 4.dp),
-                    onDropdownMenuDismiss = onDropdownMenuDismiss,
-                    onIncrementationDropdownMenuDismiss = onIncrementationDropdownMenuDismiss,
-                    onLongPress = onLongPress,
-                    onEvent = onEvent,
-                    calendarState = calendarState,
-                    onFromDateClick = onFromDateClick
+            Row(
+                modifier = Modifier.width(100.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "${date.dayOfMonth}.${date.monthValue}.${
+                        date.year.toString().takeLast(2)
+                    }",
+                    fontSize = 22.sp
                 )
             }
+            FlowRow(
+                modifier = Modifier
+                    .weight(1F),
+            ) {
+                modules.forEach {
+                    ModuleItem(
+                        module = it,
+                        modifier = Modifier
+                            .height(IntrinsicSize.Max)
+                            .width(IntrinsicSize.Max)
+                            .padding(vertical = 2.dp, horizontal = 4.dp),
+                        onDropdownMenuDismiss = onDropdownMenuDismiss,
+                        onAddNewIncrementationDropdownMenuDismiss = onAddNewIncrementationDropdownMenuDismiss,
+                        onEditIncrementationDropdownMenuDismiss = onEditIncrementationDropdownMenuDismiss,
+                        onLongPress = onLongPress,
+                        onEditIncrementation = onEditIncrementation,
+                        onAddNewIncrementation = onAddNewIncrementation,
+                        onResetNewIncrementation = onResetNewIncrementation,
+                        onModuleClick = onModuleClick,
+                        onActionDeleteClick = onActionDeleteClick,
+                        onActionEditIncrementationClick = onActionEditIncrementationClick,
+                        onActionAddNewIncrementationClick = onActionAddNewIncrementationClick,
+                        onActionAddNewIncrementationFromDateClick = onActionAddNewIncrementationFromDateClick,
+                        onActionToggleSkippedClick = onActionToggleSkippedClick,
+                    )
+                }
+            }
+            IconButton(onClick = { onAddButtonClick(date) }) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = null)
+            }
         }
-        IconButton(onClick = { onAddButtonClick(date) }) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = null)
-        }
+
+        Divider(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            thickness = 2.dp,
+            color = Color.LightGray.copy(alpha = 0.5f)
+        )
     }
+
 }
 
 
@@ -97,16 +128,23 @@ private fun ModuleItem(
     module: ModuleDisplayable,
     modifier: Modifier = Modifier,
     onDropdownMenuDismiss: () -> Unit,
-    onIncrementationDropdownMenuDismiss: () -> Unit,
+    onAddNewIncrementationDropdownMenuDismiss: () -> Unit,
+    onEditIncrementationDropdownMenuDismiss: () -> Unit,
+    onEditIncrementation: (ModuleDisplayable) -> Unit,
+    onAddNewIncrementation: (ModuleDisplayable) -> Unit,
+    onResetNewIncrementation: (ModuleDisplayable) -> Unit,
+    onModuleClick: (UUID) -> Unit,
     onLongPress: (UUID) -> Unit,
-    onEvent: (MainScreenEvents) -> Unit,
-    calendarState: UseCaseState,
-    onFromDateClick: (ModuleDisplayable) -> Unit
+    onActionDeleteClick: (ModuleDisplayable) -> Unit,
+    onActionEditIncrementationClick: (ModuleDisplayable) -> Unit,
+    onActionAddNewIncrementationClick: (ModuleDisplayable) -> Unit,
+    onActionAddNewIncrementationFromDateClick: (ModuleDisplayable) -> Unit,
+    onActionToggleSkippedClick: (ModuleDisplayable) -> Unit,
 ) {
     val height: Dp = (LocalConfiguration.current.screenHeightDp / 2).dp
     Box(
         modifier = modifier.combinedClickable(
-            onClick = { onEvent(MainScreenEvents.OnModuleClick(module.id)) },
+            onClick = { onModuleClick(module.id) },
             onLongClick = { onLongPress(module.id) }),
         contentAlignment = Alignment.Center
     ) {
@@ -156,34 +194,39 @@ private fun ModuleItem(
         ModuleActionsMenu(
             onDismissRequest = onDropdownMenuDismiss,
             module = module,
-            onEvent = onEvent,
-            calendarState = calendarState,
-            onFromDateClick = onFromDateClick
+            onActionDeleteClick = onActionDeleteClick,
+            onActionEditIncrementationClick = onActionEditIncrementationClick,
+            onActionAddNewIncrementationClick = onActionAddNewIncrementationClick,
+            onActionAddNewIncrementationFromDateClick = onActionAddNewIncrementationFromDateClick,
+            onActionToggleSkippedClick = onActionToggleSkippedClick,
         )
 
         IncrementationDropdownMenu(
+            modifier = Modifier.height(height),
             expanded = module.isAddNewIncrementDropdownMenuVisible,
-            onDismissRequest = onIncrementationDropdownMenuDismiss,
-            dropDownMenuHeight = height,
+            onDismissRequest = onAddNewIncrementationDropdownMenuDismiss,
             onClick = { number ->
                 val newModule = module.copy(newIncrementation = number)
-                onEvent(MainScreenEvents.OnAddNewIncrementation(newModule))
+                onAddNewIncrementation(newModule)
             },
+            isResetAvailable = true,
             onResetClick = {
                 module.newIncrementation?.let {
                     val newModule = module.copy(newIncrementation = null)
-                    onEvent(MainScreenEvents.OnAddNewIncrementation(newModule))
+                    onResetNewIncrementation(newModule)
+
                 }
             }
         )
 
         IncrementationDropdownMenu(
+            modifier = Modifier.height(height),
             expanded = module.isEditIncrementDropdownMenuVisible,
-            onDismissRequest = onIncrementationDropdownMenuDismiss,
-            dropDownMenuHeight = height,
+            onDismissRequest = onEditIncrementationDropdownMenuDismiss,
+
             onClick = { number ->
                 val newModule = module.copy(incrementation = number.toString())
-                onEvent(MainScreenEvents.OnEditIncrementation(newModule))
+                onEditIncrementation(newModule)
             },
             isResetAvailable = false
         )

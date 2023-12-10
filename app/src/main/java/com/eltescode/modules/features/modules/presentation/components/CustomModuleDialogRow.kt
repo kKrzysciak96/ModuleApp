@@ -17,7 +17,8 @@ fun CustomModuleDialogRow(
     modifier: Modifier = Modifier,
     onValueChange: (String) -> Unit,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    placeholderText: String
+    placeholderText: String,
+    singleLine: Boolean = false,
 ) {
     Row(
         modifier = modifier,
@@ -31,7 +32,8 @@ fun CustomModuleDialogRow(
             value = text,
             onValueChange = onValueChange,
             placeholder = { Text(text = placeholderText) },
-            keyboardOptions = keyboardOptions
+            keyboardOptions = keyboardOptions,
+            singleLine = singleLine
         )
     }
 }

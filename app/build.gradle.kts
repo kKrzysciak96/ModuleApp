@@ -4,7 +4,7 @@ plugins {
     id("dagger.hilt.android.plugin")
     id("kotlin-kapt")
 //    id("com.google.gms.google-services")
-
+    kotlin("plugin.serialization")
 }
 
 android {
@@ -91,4 +91,10 @@ dependencies {
     implementation(Room.roomKtx)
     implementation(Room.roomRuntime)
     implementation(WorkManager.workManager)
+
+    implementation("io.github.jan-tennert.supabase:postgrest-kt:1.1.1")
+
+    implementation("io.ktor:ktor-client-cio:2.3.3")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
 }

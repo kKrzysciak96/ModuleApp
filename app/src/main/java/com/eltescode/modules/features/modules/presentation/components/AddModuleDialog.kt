@@ -57,7 +57,8 @@ fun AddModuleDialog(
                         .fillMaxWidth()
                         .padding(top = 32.dp, start = 16.dp, end = 16.dp),
                     onValueChange = onNameTextEntered,
-                    placeholderText = stringResource(id = R.string.enter_name_hint)
+                    placeholderText = stringResource(id = R.string.enter_name_hint),
+                    singleLine = true
                 )
                 CustomModuleDialogRow(
                     label = stringResource(id = R.string.comment),
@@ -76,7 +77,8 @@ fun AddModuleDialog(
                         .padding(top = 32.dp, start = 16.dp, end = 16.dp),
                     onValueChange = onIncrementationTextEntered,
                     placeholderText = stringResource(id = R.string.enter_incrementation_hint),
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    singleLine = true
                 )
             }
         }

@@ -22,7 +22,10 @@ interface ModuleDao {
     suspend fun deleteModule(module: Module)
 
     @Query("SELECT * FROM Module")
-    fun geModules(): Flow<List<Module>>
+    fun getModulesFlow(): Flow<List<Module>>
+
+    @Query("SELECT * FROM Module")
+    suspend fun getModules(): List<Module>
 
     @Query("SELECT * FROM Module WHERE id = :id")
     suspend fun geModule(id: UUID): Module

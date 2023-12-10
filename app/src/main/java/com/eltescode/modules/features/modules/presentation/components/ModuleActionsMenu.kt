@@ -6,18 +6,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import com.eltescode.modules.features.modules.presentation.model.ModuleDisplayable
-import com.eltescode.modules.features.modules.presentation.utils.MainScreenEvents
 import com.eltescode.modules.features.modules.presentation.utils.ModuleActions
-import com.maxkeppeker.sheets.core.models.base.UseCaseState
 
 
 @Composable
 fun ModuleActionsMenu(
     module: ModuleDisplayable,
     onDismissRequest: () -> Unit,
-    onEvent: (MainScreenEvents) -> Unit,
-    calendarState: UseCaseState,
-    onFromDateClick: (ModuleDisplayable) -> Unit
+    onActionDeleteClick: (ModuleDisplayable) -> Unit,
+    onActionEditIncrementationClick: (ModuleDisplayable) -> Unit,
+    onActionAddNewIncrementationClick: (ModuleDisplayable) -> Unit,
+    onActionAddNewIncrementationFromDateClick: (ModuleDisplayable) -> Unit,
+    onActionToggleSkippedClick: (ModuleDisplayable) -> Unit,
 ) {
     val context = LocalContext.current
     DropdownMenu(
@@ -28,25 +28,23 @@ fun ModuleActionsMenu(
                 onClick = {
                     when (action) {
                         ModuleActions.ActionDelete -> {
-                            onEvent(MainScreenEvents.OnDeleteModuleClick(module))
+                            onActionDeleteClick(module)
                         }
 
                         ModuleActions.ActionEditIncrementation -> {
-                            onEvent(MainScreenEvents.ActionEditIncrementation(module))
+                            onActionEditIncrementationClick(module)
                         }
 
                         ModuleActions.ActionAddNewIncrementation -> {
-                            onEvent(MainScreenEvents.ActionAddNewIncrementation(module))
+                            onActionAddNewIncrementationClick(module)
                         }
 
                         ModuleActions.ActionAddNewIncrementationFromDate -> {
-                            onEvent(MainScreenEvents.OnModuleActionsMenuDismiss)
-                            onEvent(MainScreenEvents.OnPickModuleAddNewIncrementationFromDate(module))
-                            calendarState.show()
+                            onActionAddNewIncrementationFromDateClick(module)
                         }
 
                         ModuleActions.ActionToggleSkipped -> {
-                            onEvent(MainScreenEvents.ToggleSkipped(module))
+                            onActionToggleSkippedClick(module)
                         }
                     }
                 },

@@ -2,6 +2,8 @@ package com.eltescode.modules.features.modules.domain.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.eltescode.modules.core.utils.UUIDSerializer
+import kotlinx.serialization.Serializable
 import java.util.UUID
 
 
@@ -13,7 +15,13 @@ data class Module(
     val newIncrementation: Int? = null,
     val epochDay: Long,
     val isSkipped: Boolean,
+    val timeStamp: Long,
     @PrimaryKey
+    @Serializable(with = UUIDSerializer::class)
     val id: UUID,
 )
+
+
+
+
 
