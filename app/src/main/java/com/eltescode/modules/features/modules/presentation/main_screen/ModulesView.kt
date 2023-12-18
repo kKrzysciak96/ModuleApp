@@ -118,7 +118,7 @@ fun ModulesView(
                                 .fillMaxWidth(),
                             modules = state.modules
                                 .filter { module -> module.epochDay == epochDate }
-                                .sortedByDescending { it.incrementation },
+                                .sortedByDescending { it.incrementation.toInt() },
                             onAddButtonClick = {
 
                                 onEvent(MainScreenEvents.OnAddButtonClick(epochDate))
