@@ -161,18 +161,18 @@ fun SearchView(
                             )
                         },
                         onAddNewIncrementation = { newModule ->
-                            onEvent(
-                                MainScreenEvents.OnAddNewIncrementation(
-                                    newModule
-                                )
-                            )
+//                            onEvent(
+//                                MainScreenEvents.OnAddNewIncrementation(
+//                                    newModule
+//                                )
+//                            )
                         },
                         onResetNewIncrementation = { newModule ->
-                            onEvent(
-                                MainScreenEvents.OnAddNewIncrementation(
-                                    newModule
-                                )
-                            )
+//                            onEvent(
+//                                MainScreenEvents.OnAddNewIncrementation(
+//                                    newModule
+//                                )
+//                            )
                         },
                         onModuleClick = { moduleId ->
                             onEvent(MainScreenEvents.OnModuleClick(moduleId))

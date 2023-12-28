@@ -12,6 +12,7 @@ import com.eltescode.modules.features.modules.domain.repository.ModuleRepository
 import com.eltescode.modules.features.modules.domain.use_cases.AddModuleUseCase
 import com.eltescode.modules.features.modules.domain.use_cases.AddModulesUseCase
 import com.eltescode.modules.features.modules.domain.use_cases.DeleteModuleUseCase
+import com.eltescode.modules.features.modules.domain.use_cases.DeleteModulesUseCase
 import com.eltescode.modules.features.modules.domain.use_cases.DropDataBase
 import com.eltescode.modules.features.modules.domain.use_cases.FetchModulesFromRemoteUseCase
 import com.eltescode.modules.features.modules.domain.use_cases.FilterAllModuleNames
@@ -20,6 +21,7 @@ import com.eltescode.modules.features.modules.domain.use_cases.GetModuleUseCase
 import com.eltescode.modules.features.modules.domain.use_cases.GetModulesUseCase
 import com.eltescode.modules.features.modules.domain.use_cases.ModuleUseCases
 import com.eltescode.modules.features.modules.domain.use_cases.PushModulesToRemoteUseCase
+import com.eltescode.modules.features.modules.domain.use_cases.UpdateUndoListUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -88,6 +90,8 @@ object ModulesHiltModule {
             fetchModulesFromRemoteUseCase = FetchModulesFromRemoteUseCase(repository),
             pushModulesToRemoteUseCase = PushModulesToRemoteUseCase(repository),
             filterAllModuleNames = FilterAllModuleNames(repository),
+            deleteModulesUseCase = DeleteModulesUseCase(repository),
+            updateUndoListUseCase = UpdateUndoListUseCase(),
         )
     }
 }

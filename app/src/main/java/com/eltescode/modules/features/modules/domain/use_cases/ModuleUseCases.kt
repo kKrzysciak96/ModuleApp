@@ -11,4 +11,6 @@ data class ModuleUseCases(
     val fetchModulesFromRemoteUseCase: FetchModulesFromRemoteUseCase,
     val pushModulesToRemoteUseCase: PushModulesToRemoteUseCase,
     val filterAllModuleNames: FilterAllModuleNames,
+    val deleteModulesUseCase: DeleteModulesUseCase,
+    val updateUndoListUseCase: UpdateUndoListUseCase,
 )

@@ -60,6 +60,11 @@ class ModuleRepositoryImpl(
         dao.deleteModule(module)
     }
 
+    override suspend fun deleteModules(modules: List<Module>) {
+        dao.deleteModules(modules)
+    }
+
+
     override fun getModules(): Flow<List<Module>> {
         return dao.getModulesFlow()
     }

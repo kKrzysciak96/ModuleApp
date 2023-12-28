@@ -1,5 +1,6 @@
 package com.eltescode.modules.features.modules.presentation.main_screen
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.text.isDigitsOnly
@@ -11,18 +12,19 @@ import com.eltescode.modules.core.preferences.Preferences
 import com.eltescode.modules.core.utils.ApiResult
 import com.eltescode.modules.core.utils.UiEvent
 import com.eltescode.modules.core.utils.UiText
-import com.eltescode.modules.features.modules.domain.model.Module
 import com.eltescode.modules.features.modules.domain.use_cases.ModuleUseCases
 import com.eltescode.modules.features.modules.presentation.model.ModuleDisplayable
 import com.eltescode.modules.features.modules.presentation.utils.CustomException
 import com.eltescode.modules.features.modules.presentation.utils.MainScreenEvents
 import com.eltescode.modules.features.modules.presentation.utils.MainScreenState
+import com.eltescode.modules.features.modules.presentation.utils.PerformedActionMarker
 import com.eltescode.modules.features.modules.presentation.utils.SearchOptions
 import com.eltescode.modules.features.modules.presentation.utils.SearchOrder
 import com.maxkeppeker.sheets.core.models.base.UseCaseState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -95,8 +97,19 @@ class MainScreenViewModel @Inject constructor(
                         throw CustomException(uiTextMessage = UiText.StringResource(R.string.number_error))
                     }
                     onEvent(MainScreenEvents.OnAddModuleDialogDismiss)
-                    addModule(event.module.toModule())
+                    job = null
+                    job = viewModelScope.launch {
+                        addModule(event.module)
+                        updateUndoList(
+                            listOf(
+                                Pair(
+                                    PerformedActionMarker.ActionAdded,
+                                    event.module
+                                )
+                            )
+                        )
 
+                    }
                 } catch (e: CustomException) {
                     job = null
                     job = viewModelScope.launch {
@@ -110,7 +123,8 @@ class MainScreenViewModel @Inject constructor(
             }
 
             is MainScreenEvents.OnDeleteModuleClick -> {
-                deleteModule(event.module.toModule())
+                deleteModule(event.module)
+                updateUndoList(listOf(Pair(PerformedActionMarker.ActionDeleted, event.module)))
             }
 
             is MainScreenEvents.OnCommentTextEntered -> {
@@ -197,64 +211,39 @@ class MainScreenViewModel @Inject constructor(
             is MainScreenEvents.OnEditIncrementation -> {
                 job = null
                 job = viewModelScope.launch {
-                    val moduleToUpdate = event.module.toModule()
-                    useCases.addModuleUseCase(moduleToUpdate)
+
+                    addModule(event.module)
+                    updateUndoList(listOf(Pair(PerformedActionMarker.ActionAdded, event.module)))
+
+                }
+            }
+
+            is MainScreenEvents.OnEditModule -> {
+                job = null
+                job = viewModelScope.launch {
+                    val moduleToUpdate = event.module
+                    addModule(moduleToUpdate)
+                    updateUndoList(
+                        listOf(
+                            Pair(PerformedActionMarker.ActionUpdated, moduleToUpdate)
+                        )
+                    )
+                }
+            }
+
+            is MainScreenEvents.OnAddNewIncrementationFromDate -> {
+                job = null
+                job = viewModelScope.launch {
+                    onAddNewIncrementationFromDate(event.module, state.value.newModuleToInsert!!)
                 }
             }
 
             is MainScreenEvents.OnAddNewIncrementation -> {
+                Log.d("EVENT", "FROM Nothing ${event.module.newIncrementation}")
                 job = null
                 job = viewModelScope.launch {
-                    if (event.module.newIncrementation != null) {
-                        state.value.newModuleToInsert?.let { newModuleToInsert ->
-                            val skippedModuleToUpdate =
-                                event.module.copy(isSkipped = true, newIncrementation = null)
-                                    .toModule()
-                            val skippedModuleToInsert = newModuleToInsert.copy(
-                                id = UUID.randomUUID(),
-                                newIncrementation = event.module.newIncrementation
-                            ).toModule()
-
-                            val newIncrementation =
-                                skippedModuleToInsert.incrementation + skippedModuleToInsert.newIncrementation!!
-
-                            val newEpochDay = LocalDate.ofEpochDay(skippedModuleToInsert.epochDay)
-                                .plusDays(newIncrementation.toLong()).toEpochDay()
-
-                            val moduleToAdd = skippedModuleToInsert.copy(
-                                newIncrementation = null,
-                                incrementation = newIncrementation,
-                                epochDay = newEpochDay,
-                                id = UUID.randomUUID()
-                            )
-                            useCases.addModulesUseCase(
-                                listOf(
-                                    skippedModuleToUpdate,
-                                    skippedModuleToInsert,
-                                    moduleToAdd
-                                )
-                            )
-                            _state.value = state.value.copy(newModuleToInsert = null)
-                            return@launch
-                        }
-                    }
-
-                    val moduleToUpdate = event.module.toModule()
-                    if (moduleToUpdate.newIncrementation != null) {
-                        val newIncrementation =
-                            moduleToUpdate.incrementation + moduleToUpdate.newIncrementation
-                        val newEpochDay = LocalDate.ofEpochDay(moduleToUpdate.epochDay)
-                            .plusDays(newIncrementation.toLong()).toEpochDay()
-                        val moduleToAdd = moduleToUpdate.copy(
-                            newIncrementation = null,
-                            incrementation = newIncrementation,
-                            epochDay = newEpochDay,
-                            id = UUID.randomUUID()
-                        )
-                        useCases.addModulesUseCase(listOf(moduleToUpdate, moduleToAdd))
-                    } else {
-                        useCases.addModuleUseCase(moduleToUpdate)
-                    }
+                    onAddNewIncrementation(event.module)
+                    Log.d("EVENT", "FROM Nothing ${event.module.newIncrementation}")
                 }
             }
 
@@ -280,9 +269,10 @@ class MainScreenViewModel @Inject constructor(
             is MainScreenEvents.ToggleSkipped -> {
                 job = null
                 job = viewModelScope.launch {
-                    useCases.addModuleUseCase(
-                        event.module.copy(isSkipped = !event.module.isSkipped).toModule()
-                    )
+                    val module = event.module.copy(isSkipped = !event.module.isSkipped)
+                    addModule(module)
+                    updateUndoList(listOf(Pair(PerformedActionMarker.ActionAdded, module)))
+
                 }
             }
 
@@ -319,7 +309,7 @@ class MainScreenViewModel @Inject constructor(
             MainScreenEvents.OnConfirmFetchClick -> {
                 job = null
                 job = viewModelScope.launch {
-                    useCases.fetchModulesFromRemoteUseCase().collect() { apiResult ->
+                    fetchModulesFromRemote().collect { apiResult ->
                         when (apiResult) {
                             is ApiResult.Error -> {
                                 _state.value = state.value.copy(isApiRequestLoading = false)
@@ -350,7 +340,7 @@ class MainScreenViewModel @Inject constructor(
             MainScreenEvents.OnConfirmPushClick -> {
                 job = null
                 job = viewModelScope.launch {
-                    useCases.pushModulesToRemoteUseCase().collect() { apiResult ->
+                    pushModulesToRemote().collect { apiResult ->
                         when (apiResult) {
                             is ApiResult.Error -> {
                                 _state.value = state.value.copy(isApiRequestLoading = false)
@@ -406,6 +396,70 @@ class MainScreenViewModel @Inject constructor(
             MainScreenEvents.OnPushDialogDismiss -> {
                 _state.value = state.value.copy(isPushDataDialogVisible = false)
             }
+
+            MainScreenEvents.OnRedoClick -> {
+
+
+                _state.value = state.value.copy(undoIndex = state.value.undoIndex?.plus(1) ?: 0)
+                Log.d("UNDO działa", state.value.undoIndex.toString())
+                state.value.undoIndex?.let { listIndexToAdd ->
+                    Log.d("UNDO działa", state.value.undoIndex.toString())
+                    state.value.undoList.getOrNull(listIndexToAdd)?.let { listOfPerformedActions ->
+                        job = null
+                        job = viewModelScope.launch {
+                            listOfPerformedActions.forEach {
+                                when (it.first) {
+                                    PerformedActionMarker.ActionAdded -> {
+                                        addModule(it.second)
+                                    }
+
+                                    PerformedActionMarker.ActionDeleted -> {
+                                        deleteModule(it.second)
+                                    }
+
+                                    PerformedActionMarker.ActionUpdated -> {
+                                        addModule(it.second)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Log.d("UNDO Redo ", state.value.undoIndex.toString())
+            }
+
+            MainScreenEvents.OnUndoClick -> {
+
+                state.value.undoIndex?.let { listIndexToDelete ->
+                    state.value.undoList.getOrNull(listIndexToDelete)
+                        ?.let { listOfPerformedActions ->
+                            job = null
+                            job = viewModelScope.launch {
+                                listOfPerformedActions.forEach {
+                                    when (it.first) {
+                                        PerformedActionMarker.ActionAdded -> {
+                                            deleteModule(it.second)
+                                        }
+
+                                        PerformedActionMarker.ActionDeleted -> {
+                                            addModule(it.second)
+                                        }
+
+                                        PerformedActionMarker.ActionUpdated -> {
+                                            addModule(it.second)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    _state.value = state.value.copy(
+                        undoIndex = state.value.undoIndex?.let { if (it == 0) null else it.minus(1) }
+                    )
+                    Log.d("UNDO Undo", state.value.undoIndex.toString())
+                }
+
+            }
         }
     }
 
@@ -417,18 +471,135 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-    private fun addModule(module: Module) {
+    private suspend fun addModule(module: ModuleDisplayable) {
+
+        useCases.addModuleUseCase(module.toModule().copy(timeStamp = System.currentTimeMillis()))
+    }
+
+    private suspend fun addModules(modules: List<ModuleDisplayable>) {
+
+        useCases.addModulesUseCase(modules.map { it.toModule() })
+    }
+
+    private fun deleteModule(module: ModuleDisplayable) {
         job = null
         job = viewModelScope.launch {
-            useCases.addModuleUseCase(module.copy(timeStamp = System.currentTimeMillis()))
+            useCases.deleteModuleUseCase(module.toModule())
         }
     }
 
-    private fun deleteModule(module: Module) {
-        job = null
-        job = viewModelScope.launch {
-            useCases.deleteModuleUseCase(module)
+    private suspend fun deleteModules(module: List<ModuleDisplayable>) {
+
+        useCases.deleteModulesUseCase(module.map { it.toModule() })
+
+    }
+
+    private suspend fun fetchModulesFromRemote(): Flow<ApiResult<Unit>> {
+        return useCases.fetchModulesFromRemoteUseCase()
+    }
+
+    private suspend fun pushModulesToRemote(): Flow<ApiResult<Unit>> {
+        return useCases.pushModulesToRemoteUseCase()
+    }
+
+    private suspend fun onAddNewIncrementationFromDate(
+        eventModule: ModuleDisplayable,
+        newModuleToInsert: ModuleDisplayable
+    ) {
+
+        val skippedModuleToUpdate =
+            eventModule.copy(isSkipped = true, newIncrementation = null)
+
+        val skippedModuleToInsert = newModuleToInsert.copy(
+            id = UUID.randomUUID(),
+            newIncrementation = eventModule.newIncrementation
+        )
+        if (skippedModuleToInsert.newIncrementation != null) {
+
+            val newIncrementation =
+                skippedModuleToInsert.incrementation.toInt() + skippedModuleToInsert.newIncrementation
+
+            val newEpochDay = LocalDate.ofEpochDay(skippedModuleToInsert.epochDay)
+                .plusDays(newIncrementation.toLong()).toEpochDay()
+
+            val moduleToAdd = skippedModuleToInsert.copy(
+                newIncrementation = null,
+                incrementation = newIncrementation.toString(),
+                epochDay = newEpochDay,
+                id = UUID.randomUUID()
+            )
+            val modules = listOf(
+                skippedModuleToUpdate,
+                skippedModuleToInsert,
+                moduleToAdd
+            )
+            addModules(modules)
+            updateUndoList(
+                listOf(
+                    Pair(PerformedActionMarker.ActionUpdated, skippedModuleToUpdate),
+                    Pair(PerformedActionMarker.ActionAdded, skippedModuleToInsert),
+                    Pair(PerformedActionMarker.ActionAdded, moduleToAdd),
+                )
+            )
         }
+        _state.value = state.value.copy(newModuleToInsert = null)
+
+    }
+
+    private suspend fun onAddNewIncrementation(moduleToUpdate: ModuleDisplayable) {
+        Log.d("WORKING", "DDDD")
+        if (moduleToUpdate.newIncrementation != null) {
+            val newIncrementation =
+                moduleToUpdate.incrementation.toInt() + moduleToUpdate.newIncrementation
+            val newEpochDay = LocalDate.ofEpochDay(moduleToUpdate.epochDay)
+                .plusDays(newIncrementation.toLong()).toEpochDay()
+            val moduleToAdd = moduleToUpdate.copy(
+                newIncrementation = null,
+                incrementation = newIncrementation.toString(),
+                epochDay = newEpochDay,
+                id = UUID.randomUUID()
+            )
+            val modules = listOf(moduleToUpdate, moduleToAdd)
+            addModules(modules)
+            updateUndoList(
+                listOf(
+                    Pair(PerformedActionMarker.ActionUpdated, moduleToUpdate),
+                    Pair(PerformedActionMarker.ActionAdded, moduleToAdd)
+                )
+            )
+        }
+    }
+
+    private fun updateUndoList(newSlot: List<Pair<PerformedActionMarker, ModuleDisplayable>>) {
+        state.value.undoIndex.let { currentUndoIndex ->
+
+            val newList = useCases.updateUndoListUseCase(
+                currentListPair = state.value.undoList.map { list ->
+                    list.map {
+                        Pair(it.first, it.second.toModule())
+                    }
+                },
+                newSlot = newSlot.map {
+                    Pair(it.first, it.second.toModule())
+                },
+                currentIndex = currentUndoIndex
+            )
+            _state.value = state.value.copy(
+                undoList = newList.map { list ->
+                    list.map {
+                        Pair(it.first, ModuleDisplayable(it.second))
+                    }
+                },
+                undoIndex = newList.size - 1
+            )
+        }
+        updateUndoIndex(state.value.undoList.size - 1)
+
+    }
+
+    private fun updateUndoIndex(newIndex: Int?) {
+        _state.value = state.value.copy(undoIndex = newIndex)
+
     }
 
     fun dropDatabase() {
@@ -442,6 +613,5 @@ class MainScreenViewModel @Inject constructor(
         preferences.saveLastCard(cardNumber)
         _state.value = state.value.copy(currentPage = cardNumber)
     }
-
 
 }

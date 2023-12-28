@@ -11,9 +11,12 @@ interface ModuleRepository {
     suspend fun editModule(module: Module)
 
     suspend fun addModule(module: Module)
+
     suspend fun addModules(modules: List<Module>)
 
     suspend fun deleteModule(module: Module)
+
+    suspend fun deleteModules(modules: List<Module>)
 
     fun getModules(): Flow<List<Module>>
 
@@ -22,6 +25,7 @@ interface ModuleRepository {
     suspend fun dropDatabase()
 
     suspend fun pushModulesToRemote(): Flow<ApiResult<Unit>>
+
     suspend fun fetchModulesFromRemote(): Flow<ApiResult<Unit>>
 
 }

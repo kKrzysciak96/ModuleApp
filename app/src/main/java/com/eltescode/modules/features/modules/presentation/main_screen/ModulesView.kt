@@ -1,5 +1,6 @@
 package com.eltescode.modules.features.modules.presentation.main_screen
 
+import android.util.Log
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -18,8 +19,8 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.GetApp
-import androidx.compose.material.icons.filled.Publish
+import androidx.compose.material.icons.filled.Redo
+import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -149,15 +150,34 @@ fun ModulesView(
                                 )
                             },
                             onAddNewIncrementation = { newModule ->
-                                onEvent(
-                                    MainScreenEvents.OnAddNewIncrementation(
-                                        newModule
-                                    )
-                                )
+
+                                val onAddNewIncrementationFromDateCond =
+                                    newModule.newIncrementation != null && state.newModuleToInsert != null
+                                val onAddNewIncrementCond =
+                                    newModule.newIncrementation != null && state.newModuleToInsert == null
+
+
+//
+                                when {
+                                    onAddNewIncrementationFromDateCond -> {
+                                        onEvent(
+                                            MainScreenEvents.OnAddNewIncrementationFromDate(
+                                                newModule
+                                            )
+                                        )
+                                    }
+
+                                    onAddNewIncrementCond -> {
+                                        onEvent(
+                                            MainScreenEvents.OnAddNewIncrementation(newModule)
+                                        )
+                                    }
+
+                                }
                             },
                             onResetNewIncrementation = { newModule ->
                                 onEvent(
-                                    MainScreenEvents.OnAddNewIncrementation(
+                                    MainScreenEvents.OnEditModule(
                                         newModule
                                     )
                                 )
@@ -194,7 +214,6 @@ fun ModulesView(
                             onActionToggleSkippedClick = { module ->
                                 onEvent(MainScreenEvents.ToggleSkipped(module))
                             }
-
                         )
                     }
                 }
@@ -242,25 +261,51 @@ fun ModulesView(
                 )
             }
         }
+//        CustomBottomAppBar(
+//            modifier = Modifier.align(Alignment.BottomCenter),
+//            containerColor = Purple40
+//        ) {
+//            IconButton(
+//                modifier = Modifier.weight(0.5f),
+//                colors = IconButtonDefaults.iconButtonColors(contentColor = Color.White),
+//                onClick = {
+//                    onEvent(MainScreenEvents.OnPushButtonClick)
+//                }) {
+//                Icon(imageVector = Icons.Default.Publish, contentDescription = null)
+//            }
+//            IconButton(
+//                modifier = Modifier.weight(0.5f),
+//                colors = IconButtonDefaults.iconButtonColors(contentColor = Color.White),
+//                onClick = {
+//                    onEvent(MainScreenEvents.OnFetchButtonClick)
+//                }) {
+//                Icon(imageVector = Icons.Default.GetApp, contentDescription = null)
+//            }
+//        }
+
         CustomBottomAppBar(
             modifier = Modifier.align(Alignment.BottomCenter),
             containerColor = Purple40
         ) {
             IconButton(
+                enabled = state.undoIndex != null,
                 modifier = Modifier.weight(0.5f),
                 colors = IconButtonDefaults.iconButtonColors(contentColor = Color.White),
                 onClick = {
-                    onEvent(MainScreenEvents.OnPushButtonClick)
+                    Log.d("UNDO Undo Click", state.undoIndex.toString())
+                    onEvent(MainScreenEvents.OnUndoClick)
                 }) {
-                Icon(imageVector = Icons.Default.Publish, contentDescription = null)
+                Icon(imageVector = Icons.Default.Undo, contentDescription = null)
             }
             IconButton(
+                enabled = state.undoList.isNotEmpty() && state.undoIndex != state.undoList.size - 1,
                 modifier = Modifier.weight(0.5f),
                 colors = IconButtonDefaults.iconButtonColors(contentColor = Color.White),
                 onClick = {
-                    onEvent(MainScreenEvents.OnFetchButtonClick)
+                    Log.d("UNDO Redo Click", state.undoIndex.toString())
+                    onEvent(MainScreenEvents.OnRedoClick)
                 }) {
-                Icon(imageVector = Icons.Default.GetApp, contentDescription = null)
+                Icon(imageVector = Icons.Default.Redo, contentDescription = null)
             }
         }
 

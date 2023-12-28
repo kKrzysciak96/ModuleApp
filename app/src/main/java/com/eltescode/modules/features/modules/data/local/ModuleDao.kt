@@ -21,6 +21,9 @@ interface ModuleDao {
     @Delete
     suspend fun deleteModule(module: Module)
 
+    @Delete
+    suspend fun deleteModules(module: List<Module>)
+
     @Query("SELECT * FROM Module")
     fun getModulesFlow(): Flow<List<Module>>
 

@@ -24,7 +24,9 @@ sealed interface MainScreenEvents {
     object OnAddNewIncrementDropDownMenuDismiss : MainScreenEvents
     object OnEditIncrementDropDownMenuDismiss : MainScreenEvents
     object OnCalendarDialogDismiss : MainScreenEvents
+    data class OnEditModule(val module: ModuleDisplayable) : MainScreenEvents
     data class OnAddNewIncrementation(val module: ModuleDisplayable) : MainScreenEvents
+    data class OnAddNewIncrementationFromDate(val module: ModuleDisplayable) : MainScreenEvents
     data class OnEditIncrementation(val module: ModuleDisplayable) : MainScreenEvents
     data class OnModuleClick(val id: UUID) : MainScreenEvents
     data class ToggleSkipped(val module: ModuleDisplayable) : MainScreenEvents
@@ -42,6 +44,8 @@ sealed interface MainScreenEvents {
 
     object OnPushDialogDismiss : MainScreenEvents
     object OnFetchDialogDismiss : MainScreenEvents
+    object OnUndoClick : MainScreenEvents
+    object OnRedoClick : MainScreenEvents
 
 
 }
