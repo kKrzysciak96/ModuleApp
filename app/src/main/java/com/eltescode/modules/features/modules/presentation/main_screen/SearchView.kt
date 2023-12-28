@@ -153,12 +153,12 @@ fun SearchView(
                                 )
                             )
                         },
-                        onEditIncrementation = { newModule ->
-                            onEvent(
-                                MainScreenEvents.OnEditIncrementation(
-                                    newModule
-                                )
-                            )
+                        onEditIncrementation = { newModule, old ->
+//                            onEvent(
+//                                MainScreenEvents.OnEditIncrementation(
+//                                    newModule
+//                                )
+//                            )
                         },
                         onAddNewIncrementation = { newModule ->
 //                            onEvent(
@@ -167,7 +167,7 @@ fun SearchView(
 //                                )
 //                            )
                         },
-                        onResetNewIncrementation = { newModule ->
+                        onResetNewIncrementation = { newModule, old ->
 //                            onEvent(
 //                                MainScreenEvents.OnAddNewIncrementation(
 //                                    newModule
@@ -204,7 +204,7 @@ fun SearchView(
                             state.calendarState.show()
                         },
                         onActionToggleSkippedClick = { module ->
-                            onEvent(MainScreenEvents.ToggleSkipped(module))
+                            onEvent(MainScreenEvents.OnToggleSkipped(module))
                         }
                     )
                 }

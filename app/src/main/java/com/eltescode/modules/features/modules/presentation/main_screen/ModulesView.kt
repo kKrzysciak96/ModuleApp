@@ -142,10 +142,10 @@ fun ModulesView(
                                     )
                                 )
                             },
-                            onEditIncrementation = { newModule ->
+                            onEditIncrementation = { newModule, oldModule ->
                                 onEvent(
                                     MainScreenEvents.OnEditIncrementation(
-                                        newModule
+                                        newModule, oldModule
                                     )
                                 )
                             },
@@ -156,8 +156,6 @@ fun ModulesView(
                                 val onAddNewIncrementCond =
                                     newModule.newIncrementation != null && state.newModuleToInsert == null
 
-
-//
                                 when {
                                     onAddNewIncrementationFromDateCond -> {
                                         onEvent(
@@ -172,13 +170,12 @@ fun ModulesView(
                                             MainScreenEvents.OnAddNewIncrementation(newModule)
                                         )
                                     }
-
                                 }
                             },
-                            onResetNewIncrementation = { newModule ->
+                            onResetNewIncrementation = { newModule, oldModule ->
                                 onEvent(
-                                    MainScreenEvents.OnEditModule(
-                                        newModule
+                                    MainScreenEvents.OnUpdateModule(
+                                        newModule, oldModule
                                     )
                                 )
                             },
@@ -212,7 +209,7 @@ fun ModulesView(
                                 state.calendarState.show()
                             },
                             onActionToggleSkippedClick = { module ->
-                                onEvent(MainScreenEvents.ToggleSkipped(module))
+                                onEvent(MainScreenEvents.OnToggleSkipped(module))
                             }
                         )
                     }

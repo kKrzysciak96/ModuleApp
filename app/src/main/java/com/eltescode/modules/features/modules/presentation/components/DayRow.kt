@@ -47,9 +47,9 @@ fun DayRow(
     onAddNewIncrementationDropdownMenuDismiss: () -> Unit,
     onEditIncrementationDropdownMenuDismiss: () -> Unit,
     onLongPress: (UUID) -> Unit,
-    onEditIncrementation: (ModuleDisplayable) -> Unit,
+    onEditIncrementation: (newModule: ModuleDisplayable, oldModule: ModuleDisplayable) -> Unit,
     onAddNewIncrementation: (ModuleDisplayable) -> Unit,
-    onResetNewIncrementation: (ModuleDisplayable) -> Unit,
+    onResetNewIncrementation: (newModule: ModuleDisplayable, oldModule: ModuleDisplayable) -> Unit,
     onModuleClick: (UUID) -> Unit,
     onActionDeleteClick: (ModuleDisplayable) -> Unit,
     onActionEditIncrementationClick: (ModuleDisplayable) -> Unit,
@@ -130,9 +130,9 @@ private fun ModuleItem(
     onDropdownMenuDismiss: () -> Unit,
     onAddNewIncrementationDropdownMenuDismiss: () -> Unit,
     onEditIncrementationDropdownMenuDismiss: () -> Unit,
-    onEditIncrementation: (ModuleDisplayable) -> Unit,
+    onEditIncrementation: (newModule: ModuleDisplayable, oldModule: ModuleDisplayable) -> Unit,
     onAddNewIncrementation: (ModuleDisplayable) -> Unit,
-    onResetNewIncrementation: (ModuleDisplayable) -> Unit,
+    onResetNewIncrementation: (newModule: ModuleDisplayable, oldModule: ModuleDisplayable) -> Unit,
     onModuleClick: (UUID) -> Unit,
     onLongPress: (UUID) -> Unit,
     onActionDeleteClick: (ModuleDisplayable) -> Unit,
@@ -213,7 +213,7 @@ private fun ModuleItem(
             onResetClick = {
                 module.newIncrementation?.let {
                     val newModule = module.copy(newIncrementation = null)
-                    onResetNewIncrementation(newModule)
+                    onResetNewIncrementation(newModule, module)
 
                 }
             }
@@ -226,7 +226,7 @@ private fun ModuleItem(
 
             onClick = { number ->
                 val newModule = module.copy(incrementation = number.toString())
-                onEditIncrementation(newModule)
+                onEditIncrementation(newModule, module)
             },
             isResetAvailable = false
         )

@@ -212,22 +212,23 @@ class MainScreenViewModel @Inject constructor(
                 job = null
                 job = viewModelScope.launch {
 
-                    addModule(event.module)
-                    updateUndoList(listOf(Pair(PerformedActionMarker.ActionAdded, event.module)))
+                    addModule(event.newModule)
+                    updateUndoList(
+                        listOf(
+                            Pair(
+                                PerformedActionMarker.ActionUpdated(event.oldModule),
+                                event.newModule
+                            )
+                        )
+                    )
 
                 }
             }
 
-            is MainScreenEvents.OnEditModule -> {
+            is MainScreenEvents.OnUpdateModule -> {
                 job = null
                 job = viewModelScope.launch {
-                    val moduleToUpdate = event.module
-                    addModule(moduleToUpdate)
-                    updateUndoList(
-                        listOf(
-                            Pair(PerformedActionMarker.ActionUpdated, moduleToUpdate)
-                        )
-                    )
+                    onUpdateModule(event.newModule, event.oldModule)
                 }
             }
 
@@ -266,13 +267,22 @@ class MainScreenViewModel @Inject constructor(
                 _state.value = state.value.copy(newModuleToInsert = event.module)
             }
 
-            is MainScreenEvents.ToggleSkipped -> {
+            is MainScreenEvents.OnToggleSkipped -> {
                 job = null
                 job = viewModelScope.launch {
                     val module = event.module.copy(isSkipped = !event.module.isSkipped)
                     addModule(module)
-                    updateUndoList(listOf(Pair(PerformedActionMarker.ActionAdded, module)))
-
+                    updateUndoList(
+                        listOf(
+                            Pair(
+                                PerformedActionMarker.ActionUpdated(
+                                    module.copy(
+                                        isSkipped = !module.isSkipped
+                                    )
+                                ), module
+                            )
+                        )
+                    )
                 }
             }
 
@@ -399,7 +409,6 @@ class MainScreenViewModel @Inject constructor(
 
             MainScreenEvents.OnRedoClick -> {
 
-
                 _state.value = state.value.copy(undoIndex = state.value.undoIndex?.plus(1) ?: 0)
                 Log.d("UNDO działa", state.value.undoIndex.toString())
                 state.value.undoIndex?.let { listIndexToAdd ->
@@ -417,7 +426,7 @@ class MainScreenViewModel @Inject constructor(
                                         deleteModule(it.second)
                                     }
 
-                                    PerformedActionMarker.ActionUpdated -> {
+                                    is PerformedActionMarker.ActionUpdated -> {
                                         addModule(it.second)
                                     }
                                 }
@@ -437,7 +446,7 @@ class MainScreenViewModel @Inject constructor(
                             job = null
                             job = viewModelScope.launch {
                                 listOfPerformedActions.forEach {
-                                    when (it.first) {
+                                    when (val action = it.first) {
                                         PerformedActionMarker.ActionAdded -> {
                                             deleteModule(it.second)
                                         }
@@ -446,8 +455,8 @@ class MainScreenViewModel @Inject constructor(
                                             addModule(it.second)
                                         }
 
-                                        PerformedActionMarker.ActionUpdated -> {
-                                            addModule(it.second)
+                                        is PerformedActionMarker.ActionUpdated -> {
+                                            addModule(action.oldModule)
                                         }
                                     }
                                 }
@@ -461,6 +470,18 @@ class MainScreenViewModel @Inject constructor(
 
             }
         }
+    }
+
+    private suspend fun onUpdateModule(
+        moduleToUpdate: ModuleDisplayable,
+        oldModule: ModuleDisplayable
+    ) {
+        addModule(moduleToUpdate)
+        updateUndoList(
+            listOf(
+                Pair(PerformedActionMarker.ActionUpdated(oldModule), moduleToUpdate)
+            )
+        )
     }
 
     private fun getModules() {
@@ -536,7 +557,10 @@ class MainScreenViewModel @Inject constructor(
             addModules(modules)
             updateUndoList(
                 listOf(
-                    Pair(PerformedActionMarker.ActionUpdated, skippedModuleToUpdate),
+                    Pair(
+                        PerformedActionMarker.ActionUpdated(skippedModuleToUpdate.copy(isSkipped = !skippedModuleToUpdate.isSkipped)),
+                        skippedModuleToUpdate
+                    ),
                     Pair(PerformedActionMarker.ActionAdded, skippedModuleToInsert),
                     Pair(PerformedActionMarker.ActionAdded, moduleToAdd),
                 )
@@ -563,7 +587,10 @@ class MainScreenViewModel @Inject constructor(
             addModules(modules)
             updateUndoList(
                 listOf(
-                    Pair(PerformedActionMarker.ActionUpdated, moduleToUpdate),
+                    Pair(
+                        PerformedActionMarker.ActionUpdated(moduleToUpdate.copy(newIncrementation = null)),
+                        moduleToUpdate
+                    ),
                     Pair(PerformedActionMarker.ActionAdded, moduleToAdd)
                 )
             )
