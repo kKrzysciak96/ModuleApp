@@ -1,6 +1,5 @@
 package com.eltescode.modules.features.modules.presentation.main_screen
 
-import android.util.Log
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -18,14 +17,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Redo
-import androidx.compose.material.icons.filled.Undo
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,13 +29,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eltescode.modules.R
 import com.eltescode.modules.core.extensions.calculateDateUponGivenHorizontalPagerPage
-import com.eltescode.modules.core.ui.theme.Purple40
 import com.eltescode.modules.core.utils.UiEvent
 import com.eltescode.modules.features.modules.presentation.components.AddModuleDialog
 import com.eltescode.modules.features.modules.presentation.components.CardSelector
-import com.eltescode.modules.features.modules.presentation.components.CustomBottomAppBar
 import com.eltescode.modules.features.modules.presentation.components.DayRow
 import com.eltescode.modules.features.modules.presentation.components.SupaBaseDialog
+import com.eltescode.modules.features.modules.presentation.components.SyncBottomBar
+import com.eltescode.modules.features.modules.presentation.components.UndoBottomBar
 import com.eltescode.modules.features.modules.presentation.utils.MainScreenEvents
 import com.eltescode.modules.features.modules.presentation.utils.MainScreenState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
@@ -63,7 +56,9 @@ fun ModulesView(
     scope: CoroutineScope,
     snackBarHostState: SnackbarHostState,
     pagerState: PagerState,
-    dropDatabase: () -> Unit
+    dropDatabase: () -> Unit,
+    isUndoButtonEnabled: () -> Boolean,
+    isRedoButtonEnabled: () -> Boolean,
 ) {
     LaunchedEffect(key1 = pagerState.currentPage, block = {
         onEvent(MainScreenEvents.OnNewCardVisible(pagerState.currentPage))
@@ -73,9 +68,6 @@ fun ModulesView(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.TopCenter
     ) {
-        if (state.isApiRequestLoading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-        }
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -258,52 +250,16 @@ fun ModulesView(
                 )
             }
         }
-//        CustomBottomAppBar(
-//            modifier = Modifier.align(Alignment.BottomCenter),
-//            containerColor = Purple40
-//        ) {
-//            IconButton(
-//                modifier = Modifier.weight(0.5f),
-//                colors = IconButtonDefaults.iconButtonColors(contentColor = Color.White),
-//                onClick = {
-//                    onEvent(MainScreenEvents.OnPushButtonClick)
-//                }) {
-//                Icon(imageVector = Icons.Default.Publish, contentDescription = null)
-//            }
-//            IconButton(
-//                modifier = Modifier.weight(0.5f),
-//                colors = IconButtonDefaults.iconButtonColors(contentColor = Color.White),
-//                onClick = {
-//                    onEvent(MainScreenEvents.OnFetchButtonClick)
-//                }) {
-//                Icon(imageVector = Icons.Default.GetApp, contentDescription = null)
-//            }
-//        }
 
-        CustomBottomAppBar(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            containerColor = Purple40
-        ) {
-            IconButton(
-                enabled = state.undoIndex != null,
-                modifier = Modifier.weight(0.5f),
-                colors = IconButtonDefaults.iconButtonColors(contentColor = Color.White),
-                onClick = {
-                    Log.d("UNDO Undo Click", state.undoIndex.toString())
-                    onEvent(MainScreenEvents.OnUndoClick)
-                }) {
-                Icon(imageVector = Icons.Default.Undo, contentDescription = null)
-            }
-            IconButton(
-                enabled = state.undoList.isNotEmpty() && state.undoIndex != state.undoList.size - 1,
-                modifier = Modifier.weight(0.5f),
-                colors = IconButtonDefaults.iconButtonColors(contentColor = Color.White),
-                onClick = {
-                    Log.d("UNDO Redo Click", state.undoIndex.toString())
-                    onEvent(MainScreenEvents.OnRedoClick)
-                }) {
-                Icon(imageVector = Icons.Default.Redo, contentDescription = null)
-            }
+        if (state.bottomBarState) {
+            SyncBottomBar(onEvent = onEvent, modifier = Modifier.align(Alignment.BottomCenter))
+        } else {
+            UndoBottomBar(
+                onEvent = onEvent,
+                modifier = Modifier.align(Alignment.BottomCenter),
+                isRedoButtonEnabled = isRedoButtonEnabled,
+                isUndoButtonEnabled = isUndoButtonEnabled
+            )
         }
 
         if (state.isPushDataDialogVisible) {
@@ -323,6 +279,9 @@ fun ModulesView(
                 confirmText = stringResource(id = R.string.confirm_text),
                 denyText = stringResource(id = R.string.deny_text),
             )
+        }
+        if (state.isApiRequestLoading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
     }
 }

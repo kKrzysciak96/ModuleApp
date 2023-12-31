@@ -22,6 +22,7 @@ import com.eltescode.modules.features.modules.domain.use_cases.GetModulesUseCase
 import com.eltescode.modules.features.modules.domain.use_cases.ModuleUseCases
 import com.eltescode.modules.features.modules.domain.use_cases.PushModulesToRemoteUseCase
 import com.eltescode.modules.features.modules.domain.use_cases.UpdateUndoListUseCase
+import com.eltescode.modules.features.modules.presentation.utils.UndoHelper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -78,6 +79,10 @@ object ModulesHiltModule {
 
     @Provides
     @Singleton
+    fun provideUndoHelper() = UndoHelper()
+
+    @Provides
+    @Singleton
     fun provideModuleUseCases(repository: ModuleRepository): ModuleUseCases {
         return ModuleUseCases(
             addModuleUseCase = AddModuleUseCase(repository),
@@ -89,9 +94,11 @@ object ModulesHiltModule {
             getModuleUseCase = GetModuleUseCase(repository),
             fetchModulesFromRemoteUseCase = FetchModulesFromRemoteUseCase(repository),
             pushModulesToRemoteUseCase = PushModulesToRemoteUseCase(repository),
-            filterAllModuleNames = FilterAllModuleNames(repository),
+            filterAllModuleNames = FilterAllModuleNames(),
             deleteModulesUseCase = DeleteModulesUseCase(repository),
             updateUndoListUseCase = UpdateUndoListUseCase(),
         )
     }
+
+
 }

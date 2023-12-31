@@ -11,6 +11,8 @@ import com.eltescode.modules.features.modules.domain.model.Module
 import com.eltescode.modules.features.modules.domain.use_cases.ModuleUseCases
 import com.eltescode.modules.features.modules.presentation.utils.ModuleScreenEvents
 import com.eltescode.modules.features.modules.presentation.utils.ModuleScreenState
+import com.eltescode.modules.features.modules.presentation.utils.PerformedActionMarker
+import com.eltescode.modules.features.modules.presentation.utils.UndoHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -20,8 +22,14 @@ import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
-class ModuleScreenViewModel @Inject constructor(private val useCases: ModuleUseCases) :
+class ModuleScreenViewModel @Inject constructor(
+    private val useCases: ModuleUseCases,
+    private val undoHelper: UndoHelper
+
+) :
     ViewModel() {
+    private var oldModule: Module? = null
+    private var newModule: Module? = null
 
     private val _state = mutableStateOf(ModuleScreenState())
     val state: State<ModuleScreenState> = _state
@@ -33,7 +41,8 @@ class ModuleScreenViewModel @Inject constructor(private val useCases: ModuleUseC
     fun onIdPassed(id: UUID) {
         if (state.value.module == null) {
             viewModelScope.launch {
-                _state.value = state.value.copy(module = useCases.getModuleUseCase(id))
+                _state.value =
+                    state.value.copy(module = useCases.getModuleUseCase(id).also { oldModule = it })
             }
         }
     }
@@ -41,6 +50,20 @@ class ModuleScreenViewModel @Inject constructor(private val useCases: ModuleUseC
     fun onEvent(event: ModuleScreenEvents) {
         when (event) {
             ModuleScreenEvents.OnBackButtonPress -> {
+
+                newModule?.let {
+                    if (newModule != oldModule) {
+                        undoHelper.updateUndoList(
+                            listOf(
+                                Pair(
+                                    PerformedActionMarker.ActionUpdated(oldModule!!),
+                                    it
+                                )
+                            )
+                        )
+                    }
+                }
+
                 job = null
                 job = viewModelScope.launch {
                     _uiEvent.send(UiEvent.OnBack)
@@ -65,7 +88,8 @@ class ModuleScreenViewModel @Inject constructor(private val useCases: ModuleUseC
                 _state.value = state.value.copy(
                     isCommentEditEnabled = false, isNameEditEnabled = false
                 )
-                save(event.module)
+                update(event.module)
+                newModule = event.module
                 job = null
                 job = viewModelScope.launch {
                     _uiEvent.send(
@@ -83,10 +107,11 @@ class ModuleScreenViewModel @Inject constructor(private val useCases: ModuleUseC
         }
     }
 
-    private fun save(module: Module) {
+    private fun update(module: Module) {
         job = null
         job = viewModelScope.launch {
             useCases.addModuleUseCase(module)
+
         }
     }
 }

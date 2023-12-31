@@ -16,8 +16,9 @@ data class MainScreenState constructor(
     val isFetchDataDialogVisible: Boolean = false,
     val isPushDataDialogVisible: Boolean = false,
     val isApiRequestLoading: Boolean = false,
-    val undoList: List<List<Pair<PerformedActionMarker, ModuleDisplayable>>> = emptyList(),
-    val undoIndex: Int? = null
+    val bottomBarState: Boolean = false,
+//    val undoList: List<List<Pair<PerformedActionMarker, ModuleDisplayable>>> = emptyList(),
+//    val undoIndex: Int? = null
 )
 
 

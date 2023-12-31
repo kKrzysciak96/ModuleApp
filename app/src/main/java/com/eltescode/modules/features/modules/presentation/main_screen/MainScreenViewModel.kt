@@ -20,6 +20,7 @@ import com.eltescode.modules.features.modules.presentation.utils.MainScreenState
 import com.eltescode.modules.features.modules.presentation.utils.PerformedActionMarker
 import com.eltescode.modules.features.modules.presentation.utils.SearchOptions
 import com.eltescode.modules.features.modules.presentation.utils.SearchOrder
+import com.eltescode.modules.features.modules.presentation.utils.UndoHelper
 import com.maxkeppeker.sheets.core.models.base.UseCaseState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -34,7 +35,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
-    private val useCases: ModuleUseCases, private val preferences: Preferences,
+    private val useCases: ModuleUseCases,
+    private val preferences: Preferences,
+    private val undoHelper: UndoHelper
 ) : ViewModel() {
 
     var lastPage = preferences.loadLastCard()
@@ -100,11 +103,11 @@ class MainScreenViewModel @Inject constructor(
                     job = null
                     job = viewModelScope.launch {
                         addModule(event.module)
-                        updateUndoList(
+                        undoHelper.updateUndoList(
                             listOf(
                                 Pair(
                                     PerformedActionMarker.ActionAdded,
-                                    event.module
+                                    event.module.toModule()
                                 )
                             )
                         )
@@ -124,7 +127,14 @@ class MainScreenViewModel @Inject constructor(
 
             is MainScreenEvents.OnDeleteModuleClick -> {
                 deleteModule(event.module)
-                updateUndoList(listOf(Pair(PerformedActionMarker.ActionDeleted, event.module)))
+                undoHelper.updateUndoList(
+                    listOf(
+                        Pair(
+                            PerformedActionMarker.ActionDeleted,
+                            event.module.toModule()
+                        )
+                    )
+                )
             }
 
             is MainScreenEvents.OnCommentTextEntered -> {
@@ -213,11 +223,11 @@ class MainScreenViewModel @Inject constructor(
                 job = viewModelScope.launch {
 
                     addModule(event.newModule)
-                    updateUndoList(
+                    undoHelper.updateUndoList(
                         listOf(
                             Pair(
-                                PerformedActionMarker.ActionUpdated(event.oldModule),
-                                event.newModule
+                                PerformedActionMarker.ActionUpdated(event.oldModule.toModule()),
+                                event.newModule.toModule()
                             )
                         )
                     )
@@ -272,14 +282,14 @@ class MainScreenViewModel @Inject constructor(
                 job = viewModelScope.launch {
                     val module = event.module.copy(isSkipped = !event.module.isSkipped)
                     addModule(module)
-                    updateUndoList(
+                    undoHelper.updateUndoList(
                         listOf(
                             Pair(
                                 PerformedActionMarker.ActionUpdated(
-                                    module.copy(
+                                    module.toModule().copy(
                                         isSkipped = !module.isSkipped
                                     )
-                                ), module
+                                ), module.toModule()
                             )
                         )
                     )
@@ -409,25 +419,25 @@ class MainScreenViewModel @Inject constructor(
 
             MainScreenEvents.OnRedoClick -> {
 
-                _state.value = state.value.copy(undoIndex = state.value.undoIndex?.plus(1) ?: 0)
-                Log.d("UNDO działa", state.value.undoIndex.toString())
-                state.value.undoIndex?.let { listIndexToAdd ->
-                    Log.d("UNDO działa", state.value.undoIndex.toString())
-                    state.value.undoList.getOrNull(listIndexToAdd)?.let { listOfPerformedActions ->
+                undoHelper.undoIndex = undoHelper.undoIndex?.plus(1) ?: 0
+                Log.d("UNDO działa", undoHelper.undoIndex.toString())
+                undoHelper.undoIndex?.let { listIndexToAdd ->
+                    Log.d("UNDO działa", undoHelper.undoIndex.toString())
+                    undoHelper.undoList.getOrNull(listIndexToAdd)?.let { listOfPerformedActions ->
                         job = null
                         job = viewModelScope.launch {
                             listOfPerformedActions.forEach {
                                 when (it.first) {
                                     PerformedActionMarker.ActionAdded -> {
-                                        addModule(it.second)
+                                        addModule(ModuleDisplayable(it.second))
                                     }
 
                                     PerformedActionMarker.ActionDeleted -> {
-                                        deleteModule(it.second)
+                                        deleteModule(ModuleDisplayable(it.second))
                                     }
 
                                     is PerformedActionMarker.ActionUpdated -> {
-                                        addModule(it.second)
+                                        addModule(ModuleDisplayable(it.second))
                                     }
                                 }
                             }
@@ -435,39 +445,43 @@ class MainScreenViewModel @Inject constructor(
                     }
                 }
 
-                Log.d("UNDO Redo ", state.value.undoIndex.toString())
+                Log.d("UNDO Redo ", undoHelper.undoIndex.toString())
             }
 
             MainScreenEvents.OnUndoClick -> {
 
-                state.value.undoIndex?.let { listIndexToDelete ->
-                    state.value.undoList.getOrNull(listIndexToDelete)
+                undoHelper.undoIndex?.let { listIndexToDelete ->
+                    undoHelper.undoList.getOrNull(listIndexToDelete)
                         ?.let { listOfPerformedActions ->
                             job = null
                             job = viewModelScope.launch {
                                 listOfPerformedActions.forEach {
                                     when (val action = it.first) {
                                         PerformedActionMarker.ActionAdded -> {
-                                            deleteModule(it.second)
+                                            deleteModule(ModuleDisplayable(it.second))
                                         }
 
                                         PerformedActionMarker.ActionDeleted -> {
-                                            addModule(it.second)
+                                            addModule(ModuleDisplayable(it.second))
                                         }
 
                                         is PerformedActionMarker.ActionUpdated -> {
-                                            addModule(action.oldModule)
+                                            addModule(ModuleDisplayable(action.oldModule))
                                         }
                                     }
                                 }
                             }
                         }
-                    _state.value = state.value.copy(
-                        undoIndex = state.value.undoIndex?.let { if (it == 0) null else it.minus(1) }
-                    )
-                    Log.d("UNDO Undo", state.value.undoIndex.toString())
+                    undoHelper.undoIndex =
+                        undoHelper.undoIndex?.let { if (it == 0) null else it.minus(1) }
+
+                    Log.d("UNDO Undo", undoHelper.undoIndex.toString())
                 }
 
+            }
+
+            MainScreenEvents.OnToggleBottomBar -> {
+                _state.value = state.value.copy(bottomBarState = !state.value.bottomBarState)
             }
         }
     }
@@ -477,9 +491,12 @@ class MainScreenViewModel @Inject constructor(
         oldModule: ModuleDisplayable
     ) {
         addModule(moduleToUpdate)
-        updateUndoList(
+        undoHelper.updateUndoList(
             listOf(
-                Pair(PerformedActionMarker.ActionUpdated(oldModule), moduleToUpdate)
+                Pair(
+                    PerformedActionMarker.ActionUpdated(oldModule.toModule()),
+                    moduleToUpdate.toModule()
+                )
             )
         )
     }
@@ -555,14 +572,17 @@ class MainScreenViewModel @Inject constructor(
                 moduleToAdd
             )
             addModules(modules)
-            updateUndoList(
+            undoHelper.updateUndoList(
                 listOf(
                     Pair(
-                        PerformedActionMarker.ActionUpdated(skippedModuleToUpdate.copy(isSkipped = !skippedModuleToUpdate.isSkipped)),
-                        skippedModuleToUpdate
+                        PerformedActionMarker.ActionUpdated(
+                            skippedModuleToUpdate.copy(isSkipped = !skippedModuleToUpdate.isSkipped)
+                                .toModule()
+                        ),
+                        skippedModuleToUpdate.toModule()
                     ),
-                    Pair(PerformedActionMarker.ActionAdded, skippedModuleToInsert),
-                    Pair(PerformedActionMarker.ActionAdded, moduleToAdd),
+                    Pair(PerformedActionMarker.ActionAdded, skippedModuleToInsert.toModule()),
+                    Pair(PerformedActionMarker.ActionAdded, moduleToAdd.toModule()),
                 )
             )
         }
@@ -571,7 +591,6 @@ class MainScreenViewModel @Inject constructor(
     }
 
     private suspend fun onAddNewIncrementation(moduleToUpdate: ModuleDisplayable) {
-        Log.d("WORKING", "DDDD")
         if (moduleToUpdate.newIncrementation != null) {
             val newIncrementation =
                 moduleToUpdate.incrementation.toInt() + moduleToUpdate.newIncrementation
@@ -585,48 +604,18 @@ class MainScreenViewModel @Inject constructor(
             )
             val modules = listOf(moduleToUpdate, moduleToAdd)
             addModules(modules)
-            updateUndoList(
+            undoHelper.updateUndoList(
                 listOf(
                     Pair(
-                        PerformedActionMarker.ActionUpdated(moduleToUpdate.copy(newIncrementation = null)),
-                        moduleToUpdate
+                        PerformedActionMarker.ActionUpdated(
+                            moduleToUpdate.copy(newIncrementation = null).toModule()
+                        ),
+                        moduleToUpdate.toModule()
                     ),
-                    Pair(PerformedActionMarker.ActionAdded, moduleToAdd)
+                    Pair(PerformedActionMarker.ActionAdded, moduleToAdd.toModule())
                 )
             )
         }
-    }
-
-    private fun updateUndoList(newSlot: List<Pair<PerformedActionMarker, ModuleDisplayable>>) {
-        state.value.undoIndex.let { currentUndoIndex ->
-
-            val newList = useCases.updateUndoListUseCase(
-                currentListPair = state.value.undoList.map { list ->
-                    list.map {
-                        Pair(it.first, it.second.toModule())
-                    }
-                },
-                newSlot = newSlot.map {
-                    Pair(it.first, it.second.toModule())
-                },
-                currentIndex = currentUndoIndex
-            )
-            _state.value = state.value.copy(
-                undoList = newList.map { list ->
-                    list.map {
-                        Pair(it.first, ModuleDisplayable(it.second))
-                    }
-                },
-                undoIndex = newList.size - 1
-            )
-        }
-        updateUndoIndex(state.value.undoList.size - 1)
-
-    }
-
-    private fun updateUndoIndex(newIndex: Int?) {
-        _state.value = state.value.copy(undoIndex = newIndex)
-
     }
 
     fun dropDatabase() {
@@ -636,9 +625,13 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-    fun updateLastCard(cardNumber: Int) {
+    private fun updateLastCard(cardNumber: Int) {
         preferences.saveLastCard(cardNumber)
         _state.value = state.value.copy(currentPage = cardNumber)
     }
+
+    fun isUndoButtonEnabled() = undoHelper.undoIndex != null
+    fun isRedoButtonEnabled() =
+        undoHelper.undoList.isNotEmpty() && undoHelper.undoIndex != undoHelper.undoList.size - 1
 
 }

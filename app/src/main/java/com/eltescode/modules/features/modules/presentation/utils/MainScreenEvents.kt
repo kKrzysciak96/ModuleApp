@@ -24,6 +24,7 @@ sealed interface MainScreenEvents {
     object OnAddNewIncrementDropDownMenuDismiss : MainScreenEvents
     object OnEditIncrementDropDownMenuDismiss : MainScreenEvents
     object OnCalendarDialogDismiss : MainScreenEvents
+    object OnToggleBottomBar : MainScreenEvents
     data class OnUpdateModule(val newModule: ModuleDisplayable, val oldModule: ModuleDisplayable) :
         MainScreenEvents
 

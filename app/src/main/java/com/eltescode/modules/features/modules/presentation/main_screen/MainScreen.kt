@@ -66,7 +66,9 @@ fun MainScreen(
             scope = scope,
             snackBarHostState = snackBarHostState,
             pagerState = pagerState,
-            dropDatabase = viewModel::dropDatabase
+            dropDatabase = viewModel::dropDatabase,
+            isRedoButtonEnabled = viewModel::isRedoButtonEnabled,
+            isUndoButtonEnabled = viewModel::isUndoButtonEnabled
         )
     }
 }
