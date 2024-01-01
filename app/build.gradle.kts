@@ -4,7 +4,7 @@ plugins {
     id("dagger.hilt.android.plugin")
     id("kotlin-kapt")
 //    id("com.google.gms.google-services")
-
+    kotlin("plugin.serialization")
 }
 
 android {
@@ -31,6 +31,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -67,6 +68,8 @@ dependencies {
     implementation(Compose.viewModelCompose)
     implementation(Compose.activityCompose)
     implementation(Compose.materialIconsExtended)
+    implementation(Compose.composeDialogsCore)
+    implementation(Compose.composeCalendarDialog)
 
     implementation(DaggerHilt.hiltAndroid)
     kapt(DaggerHilt.hiltCompiler)
@@ -88,4 +91,10 @@ dependencies {
     implementation(Room.roomKtx)
     implementation(Room.roomRuntime)
     implementation(WorkManager.workManager)
+
+    implementation("io.github.jan-tennert.supabase:postgrest-kt:1.1.1")
+
+    implementation("io.ktor:ktor-client-cio:2.3.3")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
 }

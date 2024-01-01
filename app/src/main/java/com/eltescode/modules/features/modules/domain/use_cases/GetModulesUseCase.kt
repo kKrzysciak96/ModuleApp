@@ -8,6 +8,6 @@ import kotlinx.coroutines.flow.Flow
 class GetModulesUseCase(private val repository: ModuleRepository) {
 
     operator fun invoke(): Flow<List<Module>> {
-        return repository.geModules()
+        return repository.getModules()
     }
 }

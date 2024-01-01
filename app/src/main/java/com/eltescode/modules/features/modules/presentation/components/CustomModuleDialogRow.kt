@@ -3,7 +3,6 @@ package com.eltescode.modules.features.modules.presentation.components
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -11,7 +10,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomModuleDialogRow(
     label: String,
@@ -19,7 +17,8 @@ fun CustomModuleDialogRow(
     modifier: Modifier = Modifier,
     onValueChange: (String) -> Unit,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    placeholderText: String
+    placeholderText: String,
+    singleLine: Boolean = false,
 ) {
     Row(
         modifier = modifier,
@@ -33,7 +32,8 @@ fun CustomModuleDialogRow(
             value = text,
             onValueChange = onValueChange,
             placeholder = { Text(text = placeholderText) },
-            keyboardOptions = keyboardOptions
+            keyboardOptions = keyboardOptions,
+            singleLine = singleLine
         )
     }
 }

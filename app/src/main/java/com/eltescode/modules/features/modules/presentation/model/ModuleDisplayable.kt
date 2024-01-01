@@ -12,6 +12,10 @@ data class ModuleDisplayable(
     val id: UUID,
     val isModuleDropdownMenuVisible: Boolean = false,
     val isAddNewIncrementDropdownMenuVisible: Boolean = false,
+    val isAddNewIncrementFromDateDropdownMenuVisible: Boolean = false,
+    val isEditIncrementDropdownMenuVisible: Boolean = false,
+    val isSkipped: Boolean = false,
+    val timeStamp: Long
 ) {
     constructor(module: Module) : this(
         name = module.name,
@@ -20,6 +24,8 @@ data class ModuleDisplayable(
         newIncrementation = module.newIncrementation,
         epochDay = module.epochDay,
         id = module.id,
+        isSkipped = module.isSkipped,
+        timeStamp = module.timeStamp
     )
 
     fun toModule() = Module(
@@ -29,5 +35,16 @@ data class ModuleDisplayable(
         newIncrementation = newIncrementation,
         epochDay = epochDay,
         id = id,
+        isSkipped = isSkipped,
+        timeStamp = timeStamp
     )
+
+    fun prepareDescriptionText(): String {
+
+        return if (newIncrementation != null) {
+            newIncrementation.toString() + "_" + name + " "
+        } else {
+            "$name "
+        }
+    }
 }

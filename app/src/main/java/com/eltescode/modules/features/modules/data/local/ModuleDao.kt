@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.eltescode.modules.features.modules.domain.model.Module
 import kotlinx.coroutines.flow.Flow
+import java.util.UUID
 
 @Dao
 interface ModuleDao {
@@ -20,8 +21,17 @@ interface ModuleDao {
     @Delete
     suspend fun deleteModule(module: Module)
 
+    @Delete
+    suspend fun deleteModules(module: List<Module>)
+
     @Query("SELECT * FROM Module")
-    fun geModules(): Flow<List<Module>>
+    fun getModulesFlow(): Flow<List<Module>>
+
+    @Query("SELECT * FROM Module")
+    suspend fun getModules(): List<Module>
+
+    @Query("SELECT * FROM Module WHERE id = :id")
+    suspend fun geModule(id: UUID): Module
 
     @Query("DELETE FROM Module")
     suspend fun dropDatabase()
