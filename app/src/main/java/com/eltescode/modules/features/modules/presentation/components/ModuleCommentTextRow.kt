@@ -16,6 +16,7 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,7 +54,6 @@ fun ModuleCommentTextRow(
 
     LaunchedEffect(key1 = richTextState.annotatedString.text, block = {
         onValueChange(richTextState.toHtml())
-
     })
     Row(
         modifier = modifier,
@@ -86,7 +86,6 @@ fun ModuleCommentTextRow(
                 },
                 onItalicClick = {
                     richTextState.toggleSpanStyle(SpanStyle(fontStyle = FontStyle.Italic))
-                    richTextState.toggleSpanStyle(SpanStyle())
                 },
                 onUnderLineClick = {
                     richTextState.toggleSpanStyle(SpanStyle(textDecoration = TextDecoration.Underline))
@@ -114,8 +113,10 @@ fun ModuleCommentTextRow(
                     )
                 },
             )
-
-            RichTextEditor(state = richTextState)
+            RichTextEditor(
+                state = richTextState,
+                textStyle = LocalTextStyle.current.copy(fontSize = 18.sp)
+            )
         }
     } else {
         Text(text = richTextState.annotatedString)
