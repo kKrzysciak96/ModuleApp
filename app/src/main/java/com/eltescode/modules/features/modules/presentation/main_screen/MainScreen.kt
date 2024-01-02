@@ -41,7 +41,10 @@ fun MainScreen(
 
                     is UiEvent.ShowSnackBar -> {
                         snackBarHostState.currentSnackbarData?.dismiss()
-                        snackBarHostState.showSnackbar(event.message.asString(context))
+                        snackBarHostState.showSnackbar(
+                            event.message.asString(context),
+                            withDismissAction = true
+                        )
                     }
 
                     UiEvent.OnBack -> {

@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 
 
 @Composable
-fun TextRow(
+fun ModuleNameTextRow(
     modifier: Modifier = Modifier,
     singleLine: Boolean = false,
     label: String,

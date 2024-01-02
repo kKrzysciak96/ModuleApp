@@ -62,7 +62,6 @@ fun ModulesView(
 ) {
     LaunchedEffect(key1 = pagerState.currentPage, block = {
         onEvent(MainScreenEvents.OnNewCardVisible(pagerState.currentPage))
-
     })
     Box(
         modifier = Modifier.fillMaxSize(),

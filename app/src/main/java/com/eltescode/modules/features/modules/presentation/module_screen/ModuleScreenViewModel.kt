@@ -1,5 +1,6 @@
 package com.eltescode.modules.features.modules.presentation.module_screen
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -104,10 +105,29 @@ class ModuleScreenViewModel @Inject constructor(
                 _state.value =
                     _state.value.copy(module = _state.value.module?.copy(name = event.name))
             }
+
+            ModuleScreenEvents.OnToggleColorsClick -> {
+                _state.value =
+                    state.value.copy(isColorDropdownMenuVisible = !state.value.isColorDropdownMenuVisible)
+            }
+
+            ModuleScreenEvents.OnToggleFontSizeClick -> {
+                _state.value =
+                    state.value.copy(isTextDropdownMenuVisible = !state.value.isTextDropdownMenuVisible)
+            }
+
+            ModuleScreenEvents.OnColorMenuDismissRequest -> {
+                _state.value = state.value.copy(isColorDropdownMenuVisible = false)
+            }
+
+            ModuleScreenEvents.OnFontSizeMenuDismissRequest -> {
+                _state.value = state.value.copy(isTextDropdownMenuVisible = false)
+            }
         }
     }
 
     private fun update(module: Module) {
+        Log.d("NOWY", module.comment)
         job = null
         job = viewModelScope.launch {
             useCases.addModuleUseCase(module)

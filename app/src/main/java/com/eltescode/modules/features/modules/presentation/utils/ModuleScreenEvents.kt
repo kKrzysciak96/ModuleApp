@@ -10,4 +10,8 @@ sealed interface ModuleScreenEvents {
     data class OnCommentEntered(val comment: String) : ModuleScreenEvents
     data class OnModuleSaveButtonClick(val module: Module) : ModuleScreenEvents
     object OnBackButtonPress : ModuleScreenEvents
+    object OnToggleColorsClick : ModuleScreenEvents
+    object OnColorMenuDismissRequest : ModuleScreenEvents
+    object OnToggleFontSizeClick : ModuleScreenEvents
+    object OnFontSizeMenuDismissRequest : ModuleScreenEvents
 }
