@@ -70,6 +70,7 @@ dependencies {
     implementation(Compose.materialIconsExtended)
     implementation(Compose.composeDialogsCore)
     implementation(Compose.composeCalendarDialog)
+    implementation(RicherTextEditor.richerTextEditor)
 
     implementation(DaggerHilt.hiltAndroid)
     kapt(DaggerHilt.hiltCompiler)

@@ -1,5 +1,6 @@
 package com.eltescode.modules.features.modules.presentation.module_screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,7 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eltescode.modules.R
 import com.eltescode.modules.core.utils.UiEvent
-import com.eltescode.modules.features.modules.presentation.components.TextRow
+import com.eltescode.modules.features.modules.presentation.components.ModuleCommentTextRow
+import com.eltescode.modules.features.modules.presentation.components.ModuleNameTextRow
 import com.eltescode.modules.features.modules.presentation.utils.ModuleScreenEvents
 import java.util.UUID
 
@@ -36,6 +38,7 @@ fun ModuleScreen(
     passedId: UUID,
     onBackPress: () -> Unit
 ) {
+
     val state = viewModel.state
     val context = LocalContext.current
     LaunchedEffect(key1 = Unit, block = {
@@ -47,16 +50,22 @@ fun ModuleScreen(
                 }
 
                 is UiEvent.OnNextScreen -> {
-
                 }
 
                 is UiEvent.ShowSnackBar -> {
                     snackBarHostState.currentSnackbarData?.dismiss()
-                    snackBarHostState.showSnackbar(event.message.asString(context))
+                    snackBarHostState.showSnackbar(
+                        message = event.message.asString(context),
+                        withDismissAction = true
+                    )
                 }
             }
         }
     })
+
+    BackHandler {
+        viewModel.onEvent(ModuleScreenEvents.OnBackButtonPress)
+    }
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -70,31 +79,28 @@ fun ModuleScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             state.value.module?.let { module ->
-                TextRow(
+                ModuleNameTextRow(
                     modifier = Modifier.fillMaxWidth(),
                     label = stringResource(id = R.string.name),
                     text = module.name,
+                    singleLine = true,
                     isIconEnabled = state.value.isNameEditEnabled,
-                    onValueChange = {
-                        viewModel.onEvent(ModuleScreenEvents.OnNameEntered(it))
-                    },
-                    onIconClick = {
-                        viewModel.onEvent(ModuleScreenEvents.OnEditNameToggle)
-                    },
-                    singleLine = true
-                )
+                    onValueChange = { viewModel.onEvent(ModuleScreenEvents.OnNameEntered(it)) },
+                    onIconClick = { viewModel.onEvent(ModuleScreenEvents.OnEditNameToggle) },
+
+                    )
                 Spacer(modifier = Modifier.height(16.dp))
-                TextRow(
+                ModuleCommentTextRow(
                     modifier = Modifier.fillMaxWidth(),
                     label = stringResource(id = R.string.comment),
                     text = module.comment,
                     isIconEnabled = state.value.isCommentEditEnabled,
-                    onValueChange = {
-                        viewModel.onEvent(ModuleScreenEvents.OnCommentEntered(it))
-                    },
-                    onIconClick = {
-                        viewModel.onEvent(ModuleScreenEvents.OnEditCommentToggle)
-                    })
+                    isColorDropdownMenuVisible = state.value.isColorDropdownMenuVisible,
+                    onValueChange = { viewModel.onEvent(ModuleScreenEvents.OnCommentEntered(it)) },
+                    onIconClick = { viewModel.onEvent(ModuleScreenEvents.OnEditCommentToggle) },
+                    onColorButtonClick = { viewModel.onEvent(ModuleScreenEvents.OnToggleColorsClick) },
+                    onColorMenuDismissRequest = { viewModel.onEvent(ModuleScreenEvents.OnColorMenuDismissRequest) }
+                )
             }
         }
 
@@ -109,7 +115,6 @@ fun ModuleScreen(
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
         ) {
-
             Icon(
                 imageVector = Icons.Default.Save,
                 contentDescription = null,
@@ -126,7 +131,6 @@ fun ModuleScreen(
                 .align(Alignment.BottomStart)
                 .padding(16.dp)
         ) {
-
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = null,
