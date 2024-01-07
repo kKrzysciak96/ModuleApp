@@ -9,5 +9,4 @@ enum class ModuleActions(val actionName: UiText) {
     ActionAddNewIncrementation(UiText.StringResource(R.string.add_new_increment_action)),
     ActionAddNewIncrementationFromDate(UiText.StringResource(R.string.add_new_increment_from_date_action)),
     ActionToggleSkipped(UiText.StringResource(R.string.toggle_skipped)),
-
 }

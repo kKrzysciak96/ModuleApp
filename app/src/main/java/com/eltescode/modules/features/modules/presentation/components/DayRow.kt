@@ -57,7 +57,6 @@ fun DayRow(
     onActionAddNewIncrementationFromDateClick: (ModuleDisplayable) -> Unit,
     onActionToggleSkippedClick: (ModuleDisplayable) -> Unit,
 ) {
-
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -80,6 +79,7 @@ fun DayRow(
                     fontSize = 22.sp
                 )
             }
+
             FlowRow(
                 modifier = Modifier
                     .weight(1F),
@@ -118,7 +118,6 @@ fun DayRow(
             color = Color.LightGray.copy(alpha = 0.5f)
         )
     }
-
 }
 
 
@@ -171,6 +170,7 @@ private fun ModuleItem(
                 color = Color.Black
             )
         }
+
         if (module.isSkipped) {
             Column(
                 Modifier.fillMaxSize(),
@@ -191,6 +191,7 @@ private fun ModuleItem(
                 )
             }
         }
+
         ModuleActionsMenu(
             onDismissRequest = onDropdownMenuDismiss,
             module = module,

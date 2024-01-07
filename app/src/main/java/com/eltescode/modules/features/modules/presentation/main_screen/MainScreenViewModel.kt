@@ -42,7 +42,6 @@ class MainScreenViewModel @Inject constructor(
 
     var lastPage = preferences.loadLastCard()
 
-
     private val _state = mutableStateOf(
         MainScreenState(
             currentPage = lastPage,
@@ -231,7 +230,6 @@ class MainScreenViewModel @Inject constructor(
                             )
                         )
                     )
-
                 }
             }
 
@@ -250,11 +248,9 @@ class MainScreenViewModel @Inject constructor(
             }
 
             is MainScreenEvents.OnAddNewIncrementation -> {
-                Log.d("EVENT", "FROM Nothing ${event.module.newIncrementation}")
                 job = null
                 job = viewModelScope.launch {
                     onAddNewIncrementation(event.module)
-                    Log.d("EVENT", "FROM Nothing ${event.module.newIncrementation}")
                 }
             }
 
@@ -383,7 +379,6 @@ class MainScreenViewModel @Inject constructor(
                                 _state.value = state.value.copy(isApiRequestLoading = false)
                                 _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.push_success)))
                             }
-
                         }
                     }
                 }
@@ -420,9 +415,7 @@ class MainScreenViewModel @Inject constructor(
             MainScreenEvents.OnRedoClick -> {
 
                 undoHelper.undoIndex = undoHelper.undoIndex?.plus(1) ?: 0
-                Log.d("UNDO działa", undoHelper.undoIndex.toString())
                 undoHelper.undoIndex?.let { listIndexToAdd ->
-                    Log.d("UNDO działa", undoHelper.undoIndex.toString())
                     undoHelper.undoList.getOrNull(listIndexToAdd)?.let { listOfPerformedActions ->
                         job = null
                         job = viewModelScope.launch {
@@ -444,8 +437,6 @@ class MainScreenViewModel @Inject constructor(
                         }
                     }
                 }
-
-                Log.d("UNDO Redo ", undoHelper.undoIndex.toString())
             }
 
             MainScreenEvents.OnUndoClick -> {
@@ -527,9 +518,7 @@ class MainScreenViewModel @Inject constructor(
     }
 
     private suspend fun deleteModules(module: List<ModuleDisplayable>) {
-
         useCases.deleteModulesUseCase(module.map { it.toModule() })
-
     }
 
     private suspend fun fetchModulesFromRemote(): Flow<ApiResult<Unit>> {
@@ -631,6 +620,7 @@ class MainScreenViewModel @Inject constructor(
     }
 
     fun isUndoButtonEnabled() = undoHelper.undoIndex != null
+
     fun isRedoButtonEnabled() =
         undoHelper.undoList.isNotEmpty() && undoHelper.undoIndex != undoHelper.undoList.size - 1
 

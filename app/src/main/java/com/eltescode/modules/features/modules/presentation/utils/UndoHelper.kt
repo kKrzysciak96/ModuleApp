@@ -6,7 +6,6 @@ data class UndoHelper(
     var undoList: List<List<Pair<PerformedActionMarker, Module>>> = emptyList(),
     var undoIndex: Int? = null
 ) {
-
     fun updateUndoList(newSlot: List<Pair<PerformedActionMarker, Module>>) {
         undoIndex.let { currentUndoIndex ->
 

@@ -1,6 +1,5 @@
 package com.eltescode.modules.features.modules.data.repository
 
-import android.util.Log
 import com.eltescode.modules.core.utils.ApiResult
 import com.eltescode.modules.features.modules.data.local.ModuleDao
 import com.eltescode.modules.features.modules.data.remote.RemoteDataBase
@@ -24,7 +23,6 @@ class ModuleRepositoryImpl(
             emit(ApiResult.Loading)
             try {
                 val modulesToPush = dao.getModules().map { SupabaseSpecificModule(it) }
-                Log.d("PUSHED", modulesToPush.toString())
                 remoteDataBase.pushModulesToRemote(modulesToPush)
                 emit(ApiResult.Success(Unit))
             } catch (e: Exception) {

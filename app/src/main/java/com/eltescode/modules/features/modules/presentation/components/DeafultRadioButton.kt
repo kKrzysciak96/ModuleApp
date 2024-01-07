@@ -31,6 +31,5 @@ fun DefaultRadioButton(
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(text = text, style = MaterialTheme.typography.bodySmall)
-
     }
 }

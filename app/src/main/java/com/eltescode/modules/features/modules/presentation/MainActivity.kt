@@ -1,4 +1,4 @@
-package com.eltescode.modules
+package com.eltescode.modules.features.modules.presentation
 
 import android.annotation.SuppressLint
 import android.os.Bundle

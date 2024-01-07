@@ -40,7 +40,6 @@ fun SearchOptionsSection(
                 selected = searchOptions is SearchOptions.Contains,
                 onSelect = { onSearchOptionsChange(SearchOptions.Contains(searchOptions.order)) }
             )
-
         }
         Spacer(modifier = Modifier.height(16.dp))
         Row(

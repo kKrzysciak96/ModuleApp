@@ -29,7 +29,6 @@ class AllModulesPreviewScreenViewModel @Inject constructor(
 
     private var job: Job? = null
 
-
     init {
         getAllModuleNames()
     }

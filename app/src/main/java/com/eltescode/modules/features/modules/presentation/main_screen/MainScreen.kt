@@ -38,7 +38,6 @@ fun MainScreen(
                     is UiEvent.OnNextScreen -> {
                         onNextScreen(event.route)
                     }
-
                     is UiEvent.ShowSnackBar -> {
                         snackBarHostState.currentSnackbarData?.dismiss()
                         snackBarHostState.showSnackbar(
@@ -46,7 +45,6 @@ fun MainScreen(
                             withDismissAction = true
                         )
                     }
-
                     UiEvent.OnBack -> {
                     }
                 }
