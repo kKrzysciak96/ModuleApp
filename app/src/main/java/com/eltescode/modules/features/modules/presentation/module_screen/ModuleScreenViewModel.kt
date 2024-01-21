@@ -1,6 +1,5 @@
 package com.eltescode.modules.features.modules.presentation.module_screen
 
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -123,15 +122,39 @@ class ModuleScreenViewModel @Inject constructor(
             ModuleScreenEvents.OnFontSizeMenuDismissRequest -> {
                 _state.value = state.value.copy(isTextDropdownMenuVisible = false)
             }
+
+            ModuleScreenEvents.OnGroupToggleButtonClick -> {
+                _state.value = state.value.copy(isGroupUpdateOn = !state.value.isGroupUpdateOn)
+            }
+
+            ModuleScreenEvents.OnGroupSaveButtonClick -> {
+                _state.value = state.value.copy(
+                    isCommentEditEnabled = false, isNameEditEnabled = false
+                )
+                groupUpdate()
+            }
+
         }
     }
 
     private fun update(module: Module) {
-        Log.d("NOWY", module.comment)
         job = null
         job = viewModelScope.launch {
             useCases.addModuleUseCase(module)
 
+        }
+    }
+
+    private fun groupUpdate() {
+        job = null
+        job = viewModelScope.launch {
+            state.value.module?.let { currentModule ->
+                val modulesToUpdate =
+                    useCases.getModulesByNameUseCase(currentModule.name).map {
+                        it.copy(comment = currentModule.comment)
+                    }
+                useCases.addModulesUseCase(modulesToUpdate)
+            }
         }
     }
 }

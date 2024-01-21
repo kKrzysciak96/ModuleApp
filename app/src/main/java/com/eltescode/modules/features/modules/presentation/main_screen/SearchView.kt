@@ -5,6 +5,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -32,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eltescode.modules.R
 import com.eltescode.modules.core.utils.UiEvent
+import com.eltescode.modules.features.modules.presentation.components.AddModuleDialog
 import com.eltescode.modules.features.modules.presentation.components.DayRow
 import com.eltescode.modules.features.modules.presentation.components.SearchOptionsSection
 import com.eltescode.modules.features.modules.presentation.utils.MainScreenEvents
@@ -209,6 +212,31 @@ fun SearchView(
                     )
                 }
             }
+        }
+    }
+    if (state.isAddModuleDialogVisible) {
+        state.newModuleToInsert?.let {
+            AddModuleDialog(
+                module = it,
+                modifier = Modifier
+                    .size(300.dp)
+                    .background(Color.White),
+                onNameTextEntered = { text ->
+                    onEvent(MainScreenEvents.OnNameTextEntered(text))
+                },
+                onCommentTextEntered = { text ->
+                    onEvent(MainScreenEvents.OnCommentTextEntered(text))
+                },
+                onIncrementationTextEntered = { number ->
+                    onEvent(MainScreenEvents.OnIncrementationEntered(number))
+                },
+                onDismissRequest = {
+                    onEvent(MainScreenEvents.OnAddModuleDialogDismiss)
+                },
+                onSaveButtonClick = {
+                    onEvent(MainScreenEvents.OnSaveButtonClick(it))
+                }
+            )
         }
     }
     CalendarDialog(

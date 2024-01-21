@@ -21,6 +21,7 @@ interface ModuleRepository {
     fun getModules(): Flow<List<Module>>
 
     suspend fun getModule(id: UUID): Module
+    suspend fun geModulesByName(name: String): List<Module>
 
     suspend fun dropDatabase()
 

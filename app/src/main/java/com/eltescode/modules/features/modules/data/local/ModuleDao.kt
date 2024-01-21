@@ -33,6 +33,9 @@ interface ModuleDao {
     @Query("SELECT * FROM Module WHERE id = :id")
     suspend fun geModule(id: UUID): Module
 
+    @Query("SELECT * FROM Module WHERE name = :name")
+    suspend fun geModulesByName(name: String): List<Module>
+
     @Query("DELETE FROM Module")
     suspend fun dropDatabase()
 }

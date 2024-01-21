@@ -7,5 +7,6 @@ data class ModuleScreenState(
     val isNameEditEnabled: Boolean = false,
     val isCommentEditEnabled: Boolean = false,
     val isColorDropdownMenuVisible: Boolean = false,
-    val isTextDropdownMenuVisible: Boolean = false
+    val isTextDropdownMenuVisible: Boolean = false,
+    val isGroupUpdateOn: Boolean = false
 )

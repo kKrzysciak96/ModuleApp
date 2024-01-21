@@ -36,5 +36,7 @@
     <string name="fetch_question">Fetch data from remote server?</string>
     <string name="confirm_text">Yes</string>
     <string name="deny_text">No</string>
+    <string name="turn_on_group_update">Turn on group update</string>
+    <string name="turn_off_group_update">Turn off group update</string>
 
 </resources>

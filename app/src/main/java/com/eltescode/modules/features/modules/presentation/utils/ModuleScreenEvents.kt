@@ -9,9 +9,11 @@ sealed interface ModuleScreenEvents {
     object OnEditCommentToggle : ModuleScreenEvents
     data class OnCommentEntered(val comment: String) : ModuleScreenEvents
     data class OnModuleSaveButtonClick(val module: Module) : ModuleScreenEvents
+    object OnGroupSaveButtonClick : ModuleScreenEvents
     object OnBackButtonPress : ModuleScreenEvents
     object OnToggleColorsClick : ModuleScreenEvents
     object OnColorMenuDismissRequest : ModuleScreenEvents
     object OnToggleFontSizeClick : ModuleScreenEvents
     object OnFontSizeMenuDismissRequest : ModuleScreenEvents
+    object OnGroupToggleButtonClick : ModuleScreenEvents
 }

@@ -69,7 +69,8 @@ class AllModulesPreviewScreenViewModel @Inject constructor(
         viewModelScope.launch {
             useCases.getModulesUseCase().collect { modules ->
                 oldModules = modules
-                _state.value = state.value.copy(allModules = useCases.filterAllModuleNames(modules))
+                _state.value = state.value.copy(
+                    allModules = useCases.filterAllModuleNames(modules).sortedBy { it })
             }
         }
     }

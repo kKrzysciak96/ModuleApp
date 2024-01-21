@@ -4,7 +4,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FormatBold
@@ -29,6 +31,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
@@ -52,7 +55,7 @@ fun ModuleCommentTextRow(
         richTextState.setHtml(text)
     })
 
-    LaunchedEffect(key1 = richTextState.annotatedString.text, block = {
+    LaunchedEffect(key1 = richTextState.annotatedString, block = {
         onValueChange(richTextState.toHtml())
     })
     Row(
@@ -113,6 +116,7 @@ fun ModuleCommentTextRow(
                     )
                 },
             )
+            Spacer(modifier = Modifier.height(40.dp))
             RichTextEditor(
                 state = richTextState,
                 textStyle = LocalTextStyle.current.copy(fontSize = 18.sp)

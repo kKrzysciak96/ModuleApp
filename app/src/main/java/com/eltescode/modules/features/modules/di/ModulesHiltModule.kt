@@ -18,6 +18,7 @@ import com.eltescode.modules.features.modules.domain.use_cases.FetchModulesFromR
 import com.eltescode.modules.features.modules.domain.use_cases.FilterAllModuleNames
 import com.eltescode.modules.features.modules.domain.use_cases.FilterModulesUseCase
 import com.eltescode.modules.features.modules.domain.use_cases.GetModuleUseCase
+import com.eltescode.modules.features.modules.domain.use_cases.GetModulesByNameUseCase
 import com.eltescode.modules.features.modules.domain.use_cases.GetModulesUseCase
 import com.eltescode.modules.features.modules.domain.use_cases.ModuleUseCases
 import com.eltescode.modules.features.modules.domain.use_cases.PushModulesToRemoteUseCase
@@ -97,6 +98,7 @@ object ModulesHiltModule {
             filterAllModuleNames = FilterAllModuleNames(),
             deleteModulesUseCase = DeleteModulesUseCase(repository),
             updateUndoListUseCase = UpdateUndoListUseCase(),
+            getModulesByNameUseCase = GetModulesByNameUseCase(repository)
         )
     }
 }

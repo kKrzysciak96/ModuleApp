@@ -19,13 +19,15 @@ fun SyncBottomBar(modifier: Modifier = Modifier, onEvent: (MainScreenEvents) -> 
         modifier = modifier,
         containerColor = Purple40
     ) {
+
         IconButton(
             modifier = Modifier.weight(0.5f),
             colors = IconButtonDefaults.iconButtonColors(contentColor = Color.White),
             onClick = {
-                onEvent(MainScreenEvents.OnFetchButtonClick)
+                onEvent(MainScreenEvents.OnPushButtonClick)
+
             }) {
-            Icon(imageVector = Icons.Default.Download, contentDescription = null)
+            Icon(imageVector = Icons.Default.Upload, contentDescription = null)
         }
         IconButton(
             modifier = Modifier.weight(0.5f),
@@ -42,10 +44,10 @@ fun SyncBottomBar(modifier: Modifier = Modifier, onEvent: (MainScreenEvents) -> 
             modifier = Modifier.weight(0.5f),
             colors = IconButtonDefaults.iconButtonColors(contentColor = Color.White),
             onClick = {
-                onEvent(MainScreenEvents.OnPushButtonClick)
-
+                onEvent(MainScreenEvents.OnFetchButtonClick)
             }) {
-            Icon(imageVector = Icons.Default.Upload, contentDescription = null)
+            Icon(imageVector = Icons.Default.Download, contentDescription = null)
         }
+
     }
 }

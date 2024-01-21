@@ -13,4 +13,5 @@ data class ModuleUseCases(
     val filterAllModuleNames: FilterAllModuleNames,
     val deleteModulesUseCase: DeleteModulesUseCase,
     val updateUndoListUseCase: UpdateUndoListUseCase,
+    val getModulesByNameUseCase: GetModulesByNameUseCase,
 )

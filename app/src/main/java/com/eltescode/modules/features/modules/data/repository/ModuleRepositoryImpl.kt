@@ -71,6 +71,10 @@ class ModuleRepositoryImpl(
         return dao.geModule(id)
     }
 
+    override suspend fun geModulesByName(name: String): List<Module> {
+        return dao.geModulesByName(name)
+    }
+
     override suspend fun dropDatabase() {
         dao.dropDatabase()
     }
