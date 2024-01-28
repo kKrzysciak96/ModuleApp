@@ -7,7 +7,7 @@
     <string name="enter_name_hint">Enter Name</string>
     <string name="comment">Comment</string>
     <string name="enter_comment_hint">Enter Comment</string>
-    <string name="incrementation">Incrementation</string>
+    <string name="incrementation">Increment.</string>
     <string name="enter_incrementation_hint">Enter Incrementation</string>
     <string name="delete_action">Delete</string>
     <string name="edit_name_action">Edit Name</string>
