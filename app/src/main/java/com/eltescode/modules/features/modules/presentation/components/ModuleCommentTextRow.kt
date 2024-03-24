@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FormatBold
@@ -119,11 +122,16 @@ fun ModuleCommentTextRow(
             Spacer(modifier = Modifier.height(40.dp))
             RichTextEditor(
                 state = richTextState,
-                textStyle = LocalTextStyle.current.copy(fontSize = 18.sp)
+                textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
+                modifier = Modifier.padding(bottom = 80.dp)
             )
         }
     } else {
-        Text(text = richTextState.annotatedString)
+        Text(
+            text = richTextState.annotatedString, modifier = Modifier
+                .padding(bottom = 80.dp)
+                .verticalScroll(rememberScrollState())
+        )
     }
 }
 
